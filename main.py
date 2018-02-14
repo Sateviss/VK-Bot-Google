@@ -109,6 +109,8 @@ while 1:
             sys.exit(0)
         if mess['body'] == "/пинг":
             send_message(ID, "понг")
+        if mess['body'][:2] == "/к":
+            send_message(ID, eval(mess['body'][2:]))
         if mess['uid'] != me:
             last_message = mess['mid']
             user = get_user(mess['uid'])
