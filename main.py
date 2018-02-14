@@ -130,7 +130,7 @@ while 1:
                          modf, pow, radians, sin, sinh, sqrt, tan, tanh]
             safe_dict = [k.__name__ for k in safe_list]
             send_message(ID, "Список команд, разрешенных в /v:\n"+str(safe_dict))
-        if mess['uid'] == 136776175 and mess['body'] == u"/стоп":
+        if mess['uid'] == 136776175 and mess['body'] == "!стоп":
             send_message(ID, "--ок, ухажу--")
             sys.exit(0)
         if mess['body'] == "!пинг":
