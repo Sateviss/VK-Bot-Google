@@ -3,6 +3,7 @@
 import vk
 import time
 import sys
+import math
 from datetime import datetime
 
 file = open("login.txt", "r")
@@ -110,7 +111,10 @@ while 1:
         if mess['body'] == "/пинг":
             send_message(ID, "понг")
         if mess['body'][:2] == "/к":
-            send_message(ID, eval(mess['body'][2:]))
+            try:
+                send_message(ID, eval(mess['body'][2:]))
+            except:
+                send_message(ID, "-error-")
         if mess['uid'] != me:
             last_message = mess['mid']
             user = get_user(mess['uid'])
