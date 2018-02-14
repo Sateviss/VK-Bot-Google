@@ -128,7 +128,8 @@ while 1:
             safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
                          exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
                          modf, pow, radians, sin, sinh, sqrt, tan, tanh]
-            send_message(ID, "Список команд, разрешенных в /v:\n"+str(safe_list))
+            safe_dict = [k.__name__ for k in safe_list]
+            send_message(ID, "Список команд, разрешенных в /v:\n"+str(safe_dict))
         if mess['uid'] == 136776175 and mess['body'] == u"/стоп":
             send_message(ID, "--ок, ухажу--")
             sys.exit(0)
