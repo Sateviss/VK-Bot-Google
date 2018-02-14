@@ -4,6 +4,7 @@ import vk
 import time
 import sys
 from math import *
+import math
 from datetime import datetime
 
 file = open("login.txt", "r")
@@ -111,7 +112,7 @@ while 1:
         if mess['body'] == "/пинг":
             send_message(ID, "понг")
         if mess['body'][:2] == "/к":
-            try:
+            if 1:
                 safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
                              exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
                              modf, pow, radians, sin, sinh, sqrt, tan, tanh, factorial]
@@ -119,9 +120,8 @@ while 1:
                 safe_dict = {k.__name__: k for k in safe_list}
                 a = mess['body'].replace("/к ",'')
                 print(a)
+
                 send_message(ID, eval(a, {'e': e, 'pi': pi, 'tau': tau}, safe_dict))
-            except:
-                send_message(ID, "-error-")
         if mess['uid'] != me:
             last_message = mess['mid']
             user = get_user(mess['uid'])
