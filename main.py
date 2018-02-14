@@ -112,7 +112,7 @@ while 1:
         if mess['body'] == "/пинг":
             send_message(ID, "понг")
         if mess['body'][:2] == "/к":
-            if 1:
+            try:
                 safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
                              exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
                              modf, pow, radians, sin, sinh, sqrt, tan, tanh, factorial]
@@ -121,7 +121,9 @@ while 1:
                 a = mess['body'].replace("/к ",'')
                 print(a)
 
-                send_message(ID, eval(a, {'e': e, 'pi': pi, 'tau': tau}, safe_dict))
+                send_message(ID, eval(a, {'e': e, 'pi': pi}, safe_dict))
+            except:
+                send_message(ID, "-error-")
         if mess['uid'] != me:
             last_message = mess['mid']
             user = get_user(mess['uid'])
