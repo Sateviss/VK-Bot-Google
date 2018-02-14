@@ -117,6 +117,7 @@ while 1:
     if last_message != mess['mid']:
         user = get_user(mess['uid'])
         print(time.strftime("%d.%m.%y - %H:%M:%S "), user['first_name'], user['last_name']+" :"+mess['body'])
+        last_message = mess['mid']
         if mess['uid'] == 136776175 and mess['body'] == u"/стоп":
             send_message(ID, "--ок, ухажу--")
             sys.exit(0)
@@ -128,13 +129,12 @@ while 1:
                              exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
                              modf, pow, radians, sin, sinh, sqrt, tan, tanh, factorial]
                 safe_dict = {k.__name__: k for k in safe_list}
-                a = re.sub("print\s*\((.+)\)", "\"$1\"", a[:2])
+                a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'][:2])
                 print(a)
                 send_message(ID, eval(a, {'e': e, 'pi': pi}, safe_dict))
             except:
                 send_message(ID, "-error-")
         if mess['uid'] != me:
-            last_message = mess['mid']
             if mess['uid'] == 445077792:
                 nahui.append([send_message(ID, "Юра, иди нахуй"), time.time() + 10])
                 print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
