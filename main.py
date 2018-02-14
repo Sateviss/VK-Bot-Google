@@ -118,13 +118,13 @@ while 1:
         user = get_user(mess['uid'])
         print(time.strftime("%d.%m.%y - %H:%M:%S "), user['first_name'], user['last_name']+" :"+mess['body'])
         last_message = mess['mid']
-        if mess['body'] == "/help":
+        if mess['body'] == "!help":
             send_message(ID, "Список комманд:\n"
-                             "\t/help - вывести этот список\n"
-                             "\t/стоп - выключить бота (только для автора бота)\n"
-                             "\t/пинг - понг\n"
-                             "\t/v - вычислить значение выражения (/help v чтобы вывести список команд)\n")
-        if mess['body'] == "/help v":
+                             "\t!help - вывести этот список\n"
+                             "\t!стоп - выключить бота (только для автора бота)\n"
+                             "\t!пинг - понг\n"
+                             "\t!v - вычислить значение выражения (!help v чтобы вывести список команд)\n")
+        if mess['body'] == "!help v":
             safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
                          exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
                          modf, pow, radians, sin, sinh, sqrt, tan, tanh]
@@ -133,9 +133,9 @@ while 1:
         if mess['uid'] == 136776175 and mess['body'] == u"/стоп":
             send_message(ID, "--ок, ухажу--")
             sys.exit(0)
-        if mess['body'] == "/пинг":
+        if mess['body'] == "!пинг":
             send_message(ID, "понг")
-        if mess['body'][:2] == "/v":
+        if mess['body'][:2] == "!v":
             try:
                 safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
                              exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
