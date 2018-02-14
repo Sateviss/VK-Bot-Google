@@ -127,7 +127,7 @@ while 1:
             try:
                 safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
                              exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
-                             modf, pow, radians, sin, sinh, sqrt, tan, tanh, factorial]
+                             modf, pow, radians, sin, sinh, sqrt, tan, tanh]
                 safe_dict = {k.__name__: k for k in safe_list}
                 a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("/eval ", ''))
                 print(a)
