@@ -16,6 +16,7 @@ session = vk.AuthSession(app_id=6322567, user_login=login, user_password=passwor
 api = vk.API(session)
 ID = 1
 
+user_dict = {}
 
 def get_message(c_id):
     delay = 0.01
@@ -58,18 +59,21 @@ def delete_message(m_id):
 
 def get_user(u_id=None):
     delay = 0.01
-    while 1:
-        try:
-            if u_id is not None:
-                u = api.users.get(user_id=u_id)[0]
+    if user_dict.keys().__contains__(u_id):
+        return user_dict[u_id]
+    else:
+        while 1:
+            try:
+                if u_id is not None:
+                    u = api.users.get(user_id=u_id)[0]
+                else:
+                    u = api.users.get()[0]
+                user_dict.update({u_id:u})
                 return u
-            else:
-                u = api.users.get()[0]
-                return u
-        except:
-            time.sleep(delay)
-            delay *= 2
-            continue
+            except:
+                time.sleep(delay)
+                delay *= 2
+                continue
 
 
 def gen_message(n):
@@ -94,6 +98,8 @@ send_message(ID, "---Бот Запущен---")
 last_message = -1
 nahui = []
 me = get_user()['uid']
+
+
 while 1:
     time.sleep(0.2)
     mess = get_message(ID)
@@ -109,6 +115,7 @@ while 1:
         i += 1
 
     if last_message != mess['mid']:
+        user = get_user(mess['uid'])
         print(time.strftime("%d.%m.%y - %H:%M:%S "), user['first_name'], user['last_name']+" :"+mess['body'])
         if mess['uid'] == 136776175 and mess['body'] == u"/стоп":
             send_message(ID, "--ок, ухажу--")
@@ -128,7 +135,6 @@ while 1:
                 send_message(ID, "-error-")
         if mess['uid'] != me:
             last_message = mess['mid']
-            user = get_user(mess['uid'])
             if mess['uid'] == 445077792:
                 nahui.append([send_message(ID, "Юра, иди нахуй"), time.time() + 10])
                 print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
