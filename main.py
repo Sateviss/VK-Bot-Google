@@ -120,10 +120,10 @@ while 1:
         last_message = mess['mid']
         if mess['body'] == "/help":
             send_message(ID, "Список комманд:\n"
-                             "\t/help - вывести этот список"
-                             "\t/стоп - выключить бота (только для автора бота)"
-                             "\t/пинг - понг"
-                             "\t/v - вычислить значение выражения (/help v чтобы вывести список команд)")
+                             "\t/help - вывести этот список\n"
+                             "\t/стоп - выключить бота (только для автора бота)\n"
+                             "\t/пинг - понг\n"
+                             "\t/v - вычислить значение выражения (/help v чтобы вывести список команд)\n")
         if mess['body'] == "/help v":
             safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
                          exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
@@ -134,7 +134,7 @@ while 1:
             sys.exit(0)
         if mess['body'] == "/пинг":
             send_message(ID, "понг")
-        if mess['body'].__contains__("/v"):
+        if mess['body'][:2] == "/v":
             try:
                 safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
                              exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
