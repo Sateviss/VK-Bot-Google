@@ -117,7 +117,7 @@ while 1:
                              modf, pow, radians, sin, sinh, sqrt, tan, tanh, factorial]
 
                 safe_dict = {k.__name__: k for k in safe_list}
-                send_message(ID, eval(mess['body'], {'e': e, 'pi': pi, 'tau': tau}, safe_dict))
+                send_message(ID, eval(mess['body'][2:], {'e': e, 'pi': pi, 'tau': tau}, safe_dict))
             except:
                 send_message(ID, "-error-")
         if mess['uid'] != me:
