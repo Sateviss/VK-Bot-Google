@@ -90,11 +90,6 @@ send_message(ID, "---Бот Запущен---")
 last_message = -1
 nahui = []
 me = get_user()['uid']
-safe_list = ['math','acos', 'asin', 'atan', 'atan2', 'ceil', 'cos', 'cosh', 'degrees', 'e',
-             'exp', 'fabs', 'floor', 'fmod', 'frexp', 'hypot', 'ldexp', 'log', 'log10',
-             'modf', 'pi', 'pow', 'radians', 'sin', 'sinh', 'sqrt', 'tan', 'tanh']
-
-safe_dict = dict([(k, locals().get(k, None)) for k in safe_list])
 while 1:
     time.sleep(0.2)
     mess = get_message(ID)
@@ -117,8 +112,12 @@ while 1:
             send_message(ID, "понг")
         if mess['body'][:2] == "/к":
             try:
+                safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
+                             exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
+                             modf, pow, radians, sin, sinh, sqrt, tan, tanh, factorial]
 
-                send_message(ID, eval(mess['body'][2:], {"__builtins__":None}, safe_dict))
+                safe_dict = {k.__name__: k for k in safe_list}
+                send_message(ID, eval(mess['body'], {'e': e, 'pi': pi, 'tau': tau}, safe_dict))
             except:
                 send_message(ID, "-error-")
         if mess['uid'] != me:
