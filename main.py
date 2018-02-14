@@ -3,7 +3,7 @@
 import vk
 import time
 import sys
-import math
+from math import *
 from datetime import datetime
 
 file = open("login.txt", "r")
