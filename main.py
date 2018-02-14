@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+import re
 
 import vk
 import time
 import sys
 from math import *
-import math
 from datetime import datetime
 
 file = open("login.txt", "r")
@@ -33,7 +33,10 @@ def send_message(c_id, text):
     delay = 0.01
     while 1:
         try:
-            m = api.messages.send(chat_id=c_id, message=text)
+            if len(text) < 4000:
+                m = api.messages.send(chat_id=c_id, message=text)
+            else:
+                m = api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:100])
             return m
         except:
             time.sleep(delay)
@@ -106,28 +109,26 @@ while 1:
         i += 1
 
     if last_message != mess['mid']:
+        print(time.strftime("%d.%m.%y - %H:%M:%S "), user['first_name'], user['last_name']+" :"+mess['body'])
         if mess['uid'] == 136776175 and mess['body'] == u"/стоп":
             send_message(ID, "--ок, ухажу--")
             sys.exit(0)
         if mess['body'] == "/пинг":
             send_message(ID, "понг")
-        if mess['body'][:2] == "/к":
+        if mess['body'][:2] == "/c":
             try:
                 safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
                              exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
                              modf, pow, radians, sin, sinh, sqrt, tan, tanh, factorial]
-
                 safe_dict = {k.__name__: k for k in safe_list}
-                a = mess['body'].replace("/к ",'')
+                a = re.sub("print\s*\((.+)\)", "\"$1\"", a[:2])
                 print(a)
-
                 send_message(ID, eval(a, {'e': e, 'pi': pi}, safe_dict))
             except:
                 send_message(ID, "-error-")
         if mess['uid'] != me:
             last_message = mess['mid']
             user = get_user(mess['uid'])
-            print(time.strftime("%d.%m.%y - %H:%M:%S "), user['first_name'], user['last_name']+" :"+mess['body'])
             if mess['uid'] == 445077792:
                 nahui.append([send_message(ID, "Юра, иди нахуй"), time.time() + 10])
                 print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
