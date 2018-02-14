@@ -35,9 +35,15 @@ def send_message(c_id, text):
     while 1:
         try:
             if len(text) < 4000:
-                m = api.messages.send(chat_id=c_id, message=text)
+                if c_id>100000:
+                    m = api.messages.send(user_id=c_id, message=text)
+                else:
+                    m = api.messages.send(chat_id=c_id, message=text)
             else:
-                m = api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:100])
+                if c_id>100000:
+                    m = api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:100])
+                else:
+                    m = api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:100])
             return m
         except:
             time.sleep(delay)
