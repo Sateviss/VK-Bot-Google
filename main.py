@@ -118,18 +118,29 @@ while 1:
         user = get_user(mess['uid'])
         print(time.strftime("%d.%m.%y - %H:%M:%S "), user['first_name'], user['last_name']+" :"+mess['body'])
         last_message = mess['mid']
+        if mess['body'] == "/help":
+            send_message(ID, "Список комманд:\n"
+                             "\t/help - вывести этот список"
+                             "\t/стоп - выключить бота (только для автора бота)"
+                             "\t/пинг - понг"
+                             "\t/v - вычислить значение выражения (/help v чтобы вывести список команд)")
+        if mess['body'] == "/help v":
+            safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
+                         exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
+                         modf, pow, radians, sin, sinh, sqrt, tan, tanh]
+            send_message(ID, "Список команд, разрешенных в /v:\n"+str(safe_list))
         if mess['uid'] == 136776175 and mess['body'] == u"/стоп":
             send_message(ID, "--ок, ухажу--")
             sys.exit(0)
         if mess['body'] == "/пинг":
             send_message(ID, "понг")
-        if mess['body'].__contains__("/eval"):
+        if mess['body'].__contains__("/v"):
             try:
                 safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
                              exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
                              modf, pow, radians, sin, sinh, sqrt, tan, tanh]
                 safe_dict = {k.__name__: k for k in safe_list}
-                a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("/eval ", ''))
+                a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("/v ", ''))
                 print(a)
                 send_message(ID, str(eval(a, {'e': e, 'pi': pi}, safe_dict)))
             except:
