@@ -143,7 +143,7 @@ while 1:
                 safe_dict = {k.__name__: k for k in safe_list}
                 a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v ", ''))
                 print(a)
-                send_message(ID, str(eval(a, {'e': e, 'pi': pi}, safe_dict)))
+                send_message(ID, "= "+str(eval(a, {'e': e, 'pi': pi}, safe_dict)))
             except:
                 send_message(ID, "-error-")
         if mess['uid'] != me:
