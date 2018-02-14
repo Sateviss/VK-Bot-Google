@@ -6,8 +6,8 @@ import sys
 from datetime import datetime
 
 file = open("login.txt", "r")
-login = file.readline()
-password = file.readline()
+login = file.readline().replace('\n', '')
+password = file.readline().replace('\n', '')
 file.close()
 
 session = vk.AuthSession(app_id=6322567, user_login=login, user_password=password, scope=268435455)
