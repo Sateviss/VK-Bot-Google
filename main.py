@@ -123,7 +123,7 @@ while 1:
             sys.exit(0)
         if mess['body'] == "/пинг":
             send_message(ID, "понг")
-        if mess['body'][:2] == "/eval":
+        if mess['body'].__contains__("/eval"):
             try:
                 safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
                              exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
