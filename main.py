@@ -129,7 +129,7 @@ while 1:
                          exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
                          modf, pow, radians, sin, sinh, sqrt, tan, tanh]
             safe_dict = [k.__name__ for k in safe_list]
-            send_message(ID, "Список команд, разрешенных в /v:\n"+str(safe_dict))
+            send_message(ID, "Список команд, разрешенных в !v:\n"+str(safe_dict))
         if mess['uid'] == 136776175 and mess['body'] == "!стоп":
             send_message(ID, "--ок, ухажу--")
             sys.exit(0)
@@ -141,7 +141,7 @@ while 1:
                              exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
                              modf, pow, radians, sin, sinh, sqrt, tan, tanh]
                 safe_dict = {k.__name__: k for k in safe_list}
-                a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("/v ", ''))
+                a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v ", ''))
                 print(a)
                 send_message(ID, str(eval(a, {'e': e, 'pi': pi}, safe_dict)))
             except:
