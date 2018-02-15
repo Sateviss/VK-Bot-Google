@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import re
 
+import re
 import time
 import sys
 import wrap
-from math import *
+import math
 
 file = open("login.txt", "r")
 login = file.readline().replace('\n', '')
@@ -13,47 +13,49 @@ file.close()
 
 wrap.log_in(login, password)
 
-ID = 1
-
-
 print("...working")
-wrap.send_message(ID, "---Бот Запущен---")
+#wrap.send_message(ID, "---Бот Запущен---")
+last_messages = {}
 last_message = -1
 nahui = []
 me = wrap.get_user()['uid']
 
-safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
-             exp, fabs, floor, fmod, frexp, hypot, ldexp, log, log10,
-             modf, pow, radians, sin, sinh, sqrt, tan, tanh]
+safe_list = [math.acos, math.asin, math.atan, math.atan2, math.ceil, math.cos, math.cosh, math.degrees,
+             math.exp, math.fabs, math.floor, math.fmod, math.frexp, math.hypot, math.ldexp, math.log, math.log10,
+             math.modf, math.pow, math.radians, math.sin, math.sinh, math.sqrt, math.tan, math.tanh]
+
 safe_dict = {k.__name__: k for k in safe_list}
 
-while 1:
-    time.sleep(0.2)
-    mess = wrap.get_history(ID)
 
+while 1:
+    mess = wrap.get_inbox()
     i = 0
     while i < len(nahui):
-        n = nahui[i]
-        if n[1] < time.time():
-            wrap.delete_message(n[0])
+        if nahui[i][1] < time.time():
+            wrap.delete_message(nahui[i][0])
             nahui.pop(i)
             continue
-        n[1] -= 0.2
         i += 1
 
     if last_message != mess['mid']:
+        ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['user_id'])
+        if not last_messages.keys().__contains__(ID):
+            last_messages.update({ID: mess['mid']})
+        else:
+            last_message = last_messages[ID]
         if mess['body'] == "!help":
             wrap.send_message(ID, "Список комманд:\n"
                                   "\t!help - вывести этот список\n"
-                                  "\t!стоп - выключить бота (только для автора бота)\n"
+                                  "\t!ping - понг\n"
+                                  "\t!stop - выключить бота (только для автора бота)\n"
                                   "\t!v - вычислить значение выражения (!help v чтобы вывести список команд)\n")
         if mess['body'] == "!help v":
             safe_dict = [k.__name__ for k in safe_list]
             wrap.send_message(ID, "Список команд, разрешенных в !v:\n"+str(safe_dict))
-        if mess['uid'] == 136776175 and mess['body'] == "!стоп":
+        if mess['uid'] == 136776175 and mess['body'] == "!stop":
             wrap.send_message(ID, "--ок, ухажу--")
             sys.exit(0)
-        if mess['body'] == "!пинг":
+        if mess['body'] == "!ping":
             wrap.send_message(ID, "понг")
         if mess['body'][:2] == "!v":
             try:
