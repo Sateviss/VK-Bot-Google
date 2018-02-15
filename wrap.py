@@ -25,20 +25,32 @@ def get_history(c_id):
             continue
 
 
+def get_inbox():
+    delay = 0.01
+    while 1:
+        try:
+            mess = api.messages.get(count=1)[1]
+            return mess
+        except:
+            time.sleep(delay)
+            delay *= 2
+            continue
+
+
 def send_message(c_id, text):
     delay = 0.01
-    if c_id > 100000000:
+    if int(c_id) > 100000000:
         if get_user(c_id)['can_write_private_message'] == 0:
             return "err"
     while 1:
         try:
             if len(text) < 4000:
-                if c_id > 100000000:
+                if int(c_id) > 100000000:
                     m = api.messages.send(user_id=c_id, message=text)
                 else:
                     m = api.messages.send(chat_id=c_id, message=text)
             else:
-                if c_id > 100000000:
+                if int(c_id) > 100000000:
                     m = api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
                 else:
                     m = api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
