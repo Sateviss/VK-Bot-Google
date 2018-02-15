@@ -61,6 +61,30 @@ def send_message(c_id, text):
             continue
 
 
+def send_attachment(c_id, text, att):
+    delay = 0.01
+    if int(c_id) > 100000000:
+        if get_user(c_id)['can_write_private_message'] == 0:
+            return "err"
+    while 1:
+        try:
+            if len(text) < 4000:
+                if int(c_id) > 100000000:
+                    m = api.messages.send(user_id=c_id, message=text, attachment=att)
+                else:
+                    m = api.messages.send(chat_id=c_id, message=text, attachment=att)
+            else:
+                if int(c_id) > 100000000:
+                    m = api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
+                else:
+                    m = api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
+            return m
+        except:
+            time.sleep(delay)
+            delay *= 2
+            continue
+
+
 def delete_message(m_id):
     delay = 0.01
     while 1:
@@ -119,3 +143,45 @@ def gen_message(n):
             x += 1
         o += str(k) + "\n"
     return o
+
+
+def get_video_link(name_, description_):
+    delay = 0.01
+    while 1:
+        try:
+            link = api.video.save(name=name_, description=description_, wallpost=0, no_comments=1,privacy_view="friends_of_friends_only")
+            return link
+        except:
+            time.sleep(delay)
+            delay *= 2
+            continue
+
+
+def delete_video(v_id):
+    delay = 0.01
+    while 1:
+        try:
+            api.video.delete(video_id=v_id)
+            return
+        except:
+            time.sleep(delay)
+            delay *= 2
+            continue
+
+def cleanup_videos(s):
+    delay = 0.01
+    while 1:
+        try:
+            vids = api.video.get()
+            break
+        except:
+            time.sleep(delay)
+            delay *= 2
+            continue
+    vids.pop(0)
+    i = 0
+    while i < len(vids):
+        if vids[i]['date'] < time.time()-s:
+            delete_video(vids[i]['vid'])
+        else:
+            i += 1

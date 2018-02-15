@@ -5,6 +5,8 @@ import time
 import sys
 import wrap
 import math
+import threading
+import youtube
 
 file = open("login.txt", "r")
 login = file.readline().replace('\n', '')
@@ -48,7 +50,8 @@ while 1:
                                   "\t!help - вывести этот список\n"
                                   "\t!ping - понг\n"
                                   "\t!stop - выключить бота (только для автора бота)\n"
-                                  "\t!v - вычислить значение выражения (!help v чтобы вывести список команд)\n")
+                                  "\t!v - вычислить значение выражения (!help v чтобы вывести список команд)\n"
+                                  "\t!yt - скачать видео с YouTube и загрузить его в вк, по ID\n")
         if mess['body'] == "!help v":
             safe_dict = [k.__name__ for k in safe_list]
             wrap.send_message(ID, "Список команд, разрешенных в !v:\n"+str(safe_dict))
@@ -65,9 +68,13 @@ while 1:
                 wrap.send_message(ID, "= "+str(eval(a, {'e': math.e, 'pi': math.pi}, safe_dict)))
             except:
                 wrap.send_message(ID, "-error-")
+        if mess['body'][:3] == "!yt":
+            link = mess['body'].replace("!yt ", '')
+            print(link)
+            threading._start_new_thread(wrap.send_message, (ID, youtube.down_and_send(link, ID)))
+            wrap.cleanup_videos(24*3600)
         if mess['uid'] != me:
             user = wrap.get_user(mess['uid'])
-            print(time.strftime("%d.%m.%y - %H:%M:%S "), user['first_name'], user['last_name']+" :"+mess['body'])
             last_message = mess['mid']
             if mess['uid'] == 445077792:
                 nahui.append([wrap.send_message(ID, "Юра, иди нахуй"), time.time() + 10])
