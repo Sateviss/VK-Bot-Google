@@ -138,9 +138,6 @@ while 1:
         i += 1
 
     if last_message != mess['mid']:
-        user = get_user(mess['uid'])
-        print(time.strftime("%d.%m.%y - %H:%M:%S "), user['first_name'], user['last_name']+" :"+mess['body'])
-        last_message = mess['mid']
         if mess['body'] == "!help":
             send_message(ID, "Список комманд:\n"
                              "\t!help - вывести этот список\n"
@@ -164,6 +161,9 @@ while 1:
             except:
                 send_message(ID, "-error-")
         if mess['uid'] != me:
+            user = get_user(mess['uid'])
+            print(time.strftime("%d.%m.%y - %H:%M:%S "), user['first_name'], user['last_name']+" :"+mess['body'])
+            last_message = mess['mid']
             if mess['uid'] == 445077792:
                 nahui.append([send_message(ID, "Юра, иди нахуй"), time.time() + 10])
                 print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
