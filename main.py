@@ -38,7 +38,7 @@ while 1:
         i += 1
 
     if last_message != mess['mid']:
-        ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['user_id'])
+        ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['uid'])
         if not last_messages.keys().__contains__(ID):
             last_messages.update({ID: mess['mid']})
         else:
