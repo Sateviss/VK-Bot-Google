@@ -15,8 +15,10 @@ file.close()
 session = vk.AuthSession(app_id=6322567, user_login=login, user_password=password, scope=268435455)
 api = vk.API(session)
 ID = 1
+wrap.log_in(login, password)
 
-user_dict = {}
+ID = 2
+
 
 def get_message(c_id):
     delay = 0.01
@@ -126,6 +128,12 @@ safe_list = [acos, asin, atan, atan2, ceil, cos, cosh, degrees,
 while 1:
     time.sleep(0.2)
     mess = get_message(ID)
+             modf, pow, radians, sin, sinh, sqrt, tan, tanh]
+safe_dict = {k.__name__: k for k in safe_list}
+
+while 1:
+    time.sleep(0.2)
+    mess = wrap.get_history(ID)
 
     i = 0
     while i < len(nahui):
