@@ -7,7 +7,8 @@ import requests
 
 def down_and_send(v_id, ID):
     try:
-        subprocess.run("youtube-dl --write-info-json --geo-bypass -o \"Download/%(id)s/video.%(ext)s\" "
+        subprocess.run("youtube-dl --write-info-json --geo-bypass --max-filesize 300m "
+                       "-o \"Download/%(id)s/video.%(ext)s\" "
                        "-f mp4 {}".format(quote(v_id)), shell=1)
         js = json.load(open("Download/"+v_id+"/video.info.json"))
         resp = wrap.get_video_link(js['title'], js['description'])
