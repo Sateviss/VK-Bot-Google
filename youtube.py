@@ -7,7 +7,7 @@ import requests
 
 def down_and_send(v_id, ID):
     try:
-        out = subprocess.run("youtube-dl --write-info-json --geo-bypass --max-filesize 10m "
+        out = subprocess.run("youtube-dl --write-info-json --geo-bypass --max-filesize 300m "
                        "-o \"Download/%(id)s/video.%(ext)s\" "
                        "-f mp4 {}".format(quote(v_id)), shell=1, stdout=subprocess.PIPE).stdout
         print(out)
@@ -24,7 +24,7 @@ def down_and_send(v_id, ID):
             try:
                 subprocess.run("rm -rf Download/{}".format(quote(v_id)), shell=1)
                 wrap.send_message(ID, "--Лучшее качество занимает слишком много места, переход на худшее--")
-                subprocess.run("youtube-dl --write-info-json --geo-bypass "
+                subprocess.run("youtube-dl --write-info-json --geo-bypass --max-filesize 300m "
                                "-o \"Download/%(id)s/video.%(ext)s\" "
                                "-f \"worst,mp4\" {}".format(quote(v_id)), shell=1)
                 js = json.load(open("Download/" + v_id + "/video.info.json"))
