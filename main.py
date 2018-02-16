@@ -79,7 +79,7 @@ while 1:
             if mess['uid'] == 445077792:
                 nahui.append([wrap.send_message(ID, "Юра, иди нахуй"), time.time() + 10])
                 print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
-            if (mess['uid'] == 461460001 or mess['uid'] == 463718240 or mess['uid'] == 465167934) and 'attachments' in mess.keys():
+            if (mess['uid'] == 461460001 or mess['uid'] == 463718240) and 'attachments' in mess.keys():
                 wrap.send_message(ID, wrap.gen_message(49))
                 wrap.send_message(ID, "АНТИПОРН")
                 print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Антипорн!")
