@@ -1,6 +1,6 @@
 
-\.idea/
-\.Download/
-login\.txt
-=======
+/.idea/
+/.Download/
+/.__pycache__/
+login.txt
 .DS_Store
