@@ -2,6 +2,7 @@
 
 import vk
 import time
+import sys
 
 api = vk.API
 user_dict = {}
