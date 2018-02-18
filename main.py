@@ -28,6 +28,7 @@ safe_list = [math.acos, math.asin, math.atan, math.atan2, math.ceil, math.cos, m
 
 safe_dict = {k.__name__: k for k in safe_list}
 
+t = time.time()+60
 
 while 1:
     mess = wrap.get_inbox()
@@ -38,7 +39,9 @@ while 1:
             nahui.pop(i)
             continue
         i += 1
-
+    if time.time() > t:
+        wrap.cleanup_videos(24*3600)
+        t = time.time()+60
     if last_message != mess['mid']:
         ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['uid'])
         if not last_messages.keys().__contains__(ID):
@@ -72,7 +75,6 @@ while 1:
             link = mess['body'].replace("!yt ", '')
             print(link)
             threading._start_new_thread(wrap.send_message, (ID, youtube.down_and_send(link, ID)))
-            wrap.cleanup_videos(24*3600)
         if mess['uid'] != me:
             user = wrap.get_user(mess['uid'])
             last_message = mess['mid']
