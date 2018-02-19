@@ -7,6 +7,11 @@ import wrap
 import math
 import threading
 import youtube
+<<<<<<< HEAD
+from simpleeval import simple_eval
+=======
+import ast
+>>>>>>> 3ee33edd1fb162e72e695fe84b90f1901227d2a5
 
 file = open("login.txt", "r")
 login = file.readline().replace('\n', '')
@@ -68,7 +73,11 @@ while 1:
                 safe_dict = {k.__name__: k for k in safe_list}
                 a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))
                 print(a)
-                wrap.send_message(ID, str(eval(a, {'e': math.e, 'pi': math.pi}, safe_dict)))
+<<<<<<< HEAD
+                wrap.send_message(ID, str(simple_eval(a, functions=safe_dict)))
+=======
+                wrap.send_message(ID, str(ast.literal_eval(a)))
+>>>>>>> 3ee33edd1fb162e72e695fe84b90f1901227d2a5
             except:
                 wrap.send_message(ID, "-error-")
         if mess['body'][:3] == "!yt":
