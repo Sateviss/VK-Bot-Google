@@ -68,7 +68,7 @@ while 1:
                 safe_dict = {k.__name__: k for k in safe_list}
                 a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))
                 print(a)
-                wrap.send_message(ID, "= "+str(eval(a, {'e': math.e, 'pi': math.pi}, safe_dict)))
+                wrap.send_message(ID, str(eval(a, {'e': math.e, 'pi': math.pi}, safe_dict)))
             except:
                 wrap.send_message(ID, "-error-")
         if mess['body'][:3] == "!yt":
