@@ -65,7 +65,7 @@ while 1:
             sys.exit(0)
         if "[id"+str(me)+"|" in mess['body']:
             user = wrap.get_user(mess['uid'])
-            wrap.send_message(ID, "[id"+mess['uid']+"|"+user['first_name']+" "+user['first_name']+"], отъебись блять")
+            wrap.send_message(ID, "[id"+str(mess['uid'])+"|"+user['first_name']+" "+user['first_name']+"], отъебись блять")
         if mess['body'] == "!ping":
             wrap.send_message(ID, "понг")
         if mess['body'][:2] == "!v":
