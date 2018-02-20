@@ -62,6 +62,9 @@ while 1:
         if mess['uid'] == 136776175 and mess['body'] == "!stop":
             wrap.send_message(ID, "--ок, ухажу--")
             sys.exit(0)
+        if "[id"+me+"|" in mess['body']:
+            user = wrap.get_user(mess['uid'])
+            wrap.send_message(ID, "[id"+mess['uid']+"|"+user['first_name']+" "+user['first_name']+"], отъебись блять")
         if mess['body'] == "!ping":
             wrap.send_message(ID, "понг")
         if mess['body'][:2] == "!v":
@@ -84,7 +87,7 @@ while 1:
             user = wrap.get_user(mess['uid'])
             last_message = mess['mid']
             if mess['uid'] == 445077792:
-                nahui.append([wrap.send_message(ID, "Юра, иди нахуй"), time.time() + 10])
+                nahui.append([wrap.send_message(ID, "Юра, иди нахуй"), time.time() + 20])
                 print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
             if (mess['uid'] == 461460001 or mess['uid'] == 463718240) and 'attachments' in mess.keys():
                 wrap.send_message(ID, wrap.gen_message(49))
