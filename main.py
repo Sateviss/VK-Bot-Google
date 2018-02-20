@@ -69,7 +69,11 @@ while 1:
                 safe_dict = {k.__name__: k for k in safe_list}
                 a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))
                 print(a)
-                wrap.send_message(ID, str(simple_eval(a, functions=safe_dict)))
+                o = str(simple_eval(a, functions=safe_dict))
+                if len(o.split()) == 0:
+                    wrap.send_message(ID, "[id"+mess['uid']+"|ПИДОР]!")
+                else:
+                    wrap.send_message(ID, o)
             except:
                 wrap.send_message(ID, "-error-")
         if mess['body'][:3] == "!yt":
