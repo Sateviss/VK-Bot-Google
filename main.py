@@ -63,7 +63,7 @@ while 1:
         if mess['uid'] == 136776175 and mess['body'] == "!stop":
             wrap.send_message(ID, "--ок, ухажу--")
             sys.exit(0)
-        if "[id"+me+"|" in mess['body']:
+        if "[id"+str(me)+"|" in mess['body']:
             user = wrap.get_user(mess['uid'])
             wrap.send_message(ID, "[id"+mess['uid']+"|"+user['first_name']+" "+user['first_name']+"], отъебись блять")
         if mess['body'] == "!ping":
