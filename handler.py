@@ -75,6 +75,7 @@ class Handler:
             self.bot.send_message(ID, youtube.down_and_send(link, ID, self.bot))
         elif mess['body'] == "!quote":
             if "fwd_messages" in mess.keys():
+
                 while "fwd_messages" in mess['fwd_messages'][0].keys():
                     mess = mess['fwd_messages'][0]
                 for m in mess['fwd_messages']:
