@@ -66,6 +66,8 @@ class Handler:
             self.bot.send_message(ID, "понг")
         elif mess['body'] == "!pong":
             self.bot.send_message(ID, "пинг")
+        elif mess['body'] == "!flipcoin":
+            self.bot.send_message(ID, random.choice(['орёл', 'решка']))
         elif mess['body'][:2] == "!v":
             try:
                 a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))

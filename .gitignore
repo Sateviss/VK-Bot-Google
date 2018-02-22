@@ -5,3 +5,4 @@
 .DS_Store
 *.txt
 /__pycache__/
+test\.py
