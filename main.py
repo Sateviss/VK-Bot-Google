@@ -49,7 +49,7 @@ for i in range(num_worker_threads):
     threads.append(t)
 
 while 1:
-    time.sleep(0.2)
+    time.sleep(0.1)
     l_m = marvin.get_inbox()['mid']
     if l_m != last_message:
         inbox = marvin.get_inbox(last_message)
@@ -63,6 +63,3 @@ while 1:
             handle.nahui.pop(i)
             continue
         i += 1
-    if time.time() > handle.t:
-        handle.bot.cleanup_videos(24 * 3600)
-        t = time.time() + 60
