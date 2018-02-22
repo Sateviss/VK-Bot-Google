@@ -7,6 +7,7 @@ from threading import Thread
 from wrap import VkWrap
 from handler import Handler
 import queue
+import random
 
 
 def worker():
@@ -35,8 +36,7 @@ print("...working...")
 
 safe_list = [math.acos, math.asin, math.atan, math.atan2, math.ceil, math.cos, math.cosh, math.degrees,
              math.exp, math.fabs, math.floor, math.fmod, math.frexp, math.hypot, math.ldexp, math.log, math.log10,
-             math.modf, math.pow, math.radians, math.sin, math.sinh, math.sqrt, math.tan, math.tanh]
-
+             math.modf, math.pow, math.radians, math.sin, math.sinh, math.sqrt, math.tan, math.tanh, random.randrange]
 handle = Handler(marvin, safe_list)
 
 q = queue.Queue()
@@ -52,6 +52,7 @@ while 1:
     time.sleep(0.1)
     l_m = marvin.get_inbox()['mid']
     if l_m != last_message:
+        q.join()
         inbox = marvin.get_inbox(last_message)
         last_message = l_m
         for m in inbox:
