@@ -9,12 +9,15 @@ import os
 import re
 import youtube
 import subprocess
+import io
+import random
 
 
 class Handler:
     me = -1
     t = -1
     nahui = []
+
     def __init__(self, wrapper: VkWrap, safe_list):
         self.bot = wrapper
         self.safe_dict = {k.__name__: k for k in safe_list}
@@ -22,6 +25,12 @@ class Handler:
         self.me = self.bot.get_user()['uid']
         self.t = time.time()+60
         self.last_message = -1
+        self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
+
+    def add_quote(self, quote):
+        self.quote_lines.append(quote)
+        with io.open("quotes.txt", mode="a", encoding="UTF-8") as f:
+            f.write(quote)
 
     def handle_message(self, mess):
         ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['uid'])
@@ -35,9 +44,13 @@ class Handler:
                                       "\t!pong - пинг\n"
                                       "\t!stop - выключить бота (только для автора бота)\n"
                                       "\t!v - вычислить значение выражения (!help v чтобы вывести список команд)\n"
-                                      "\t!yt - скачать видео с YouTube и загрузить его в вк, по ID\n")
+                                      "\t!yt - скачать видео с YouTube и загрузить его в вк, по ID\n"
+                                      "\t!quote - вывести/добавить цитату многоуважаемого фюрера\n")
         elif mess['body'] == "!help v":
             self.bot.send_message(ID, "Список команд, разрешенных в !v:\n" + str("".join([i+" " for i in self.safe_dict.keys()])))
+        elif mess['body'] == "!help quote":
+            self.bot.send_message(ID, "Напишите !quote чтобы получить случайную цитату фюрера, или перешлите его "
+                                      "сообщение, с командой !quote чтобы добавить его в пул")
         elif "[id" + str(self.me) + "|" in mess['body']:
             user = self.bot.get_user(mess['uid'])
             self.bot.send_message(ID, "[id" + str(mess['uid']) + "|" + user['first_name'] + " " + user['last_name'] + "], отъебись блять")
@@ -60,12 +73,22 @@ class Handler:
             link = mess['body'].replace("!yt ", '')
             print(link)
             self.bot.send_message(ID, youtube.down_and_send(link, ID, self.bot))
-        if mess['uid'] != self.me:
-            self.last_message = mess['mid']
-            if mess['uid'] == 445077792:
-                self.nahui.append([self.bot.send_message(ID, "[id445077792|Юра], иди нахуй"), time.time() + 20])
-                print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
-            if (mess['uid'] == 461460001 or mess['uid'] == 463718240) and 'attachments' in mess.keys():
-                self.bot.send_message(ID, self.bot.gen_sage(49))
-                self.bot.send_message(ID, "АНТИПОРН")
-                print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Антипорн!")
+        elif mess['body'] == "!quote":
+            if "fwd_messages" in mess.keys():
+                while "fwd_messages" in mess.keys():
+                    mess = mess['fwd_messages'][0]
+                if mess['body'] not in self.quote_lines and mess['uid'] == 183179115:
+                    self.add_quote(mess['body']+ " © Führer\n")
+                    self.bot.send_message(ID, "--Цитата добавлена--")
+            else:
+                if len(self.quote_lines):
+                    self.bot.send_message(ID, random.choice(self.quote_lines))
+                else:
+                    self.bot.send_message(ID, "--Цитат пока что нет--")
+        if mess['uid'] == 445077792:
+            self.nahui.append([self.bot.send_message(ID, "[id445077792|Юра], иди нахуй"), time.time() + 20])
+            print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
+        if (mess['uid'] == 461460001 or mess['uid'] == 463718240) and 'attachments' in mess.keys():
+            self.bot.send_message(ID, self.bot.gen_sage(49))
+            self.bot.send_message(ID, "АНТИПОРН")
+            print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Антипорн!")
