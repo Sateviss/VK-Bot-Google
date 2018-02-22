@@ -32,6 +32,14 @@ class Handler:
         with io.open("quotes.txt", mode="a", encoding="UTF-8") as f:
             f.write(quote)
 
+    def mess_bfs(self, m):
+        if "fwd_messages" in m.keys():
+            for fwd in m['fwd_messages']:
+                self.mess_bfs(fwd)
+        if (m['body'] + " © Führer\n") not in self.quote_lines and m['uid'] == 183179115:
+            self.add_quote(m['body'] + " © Führer\n")
+        return
+
     def handle_message(self, mess):
         ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['uid'])
         if mess['uid'] == 136776175 and mess['body'] == "!stop":
@@ -75,13 +83,8 @@ class Handler:
             self.bot.send_message(ID, youtube.down_and_send(link, ID, self.bot))
         elif mess['body'] == "!quote":
             if "fwd_messages" in mess.keys():
-
-                while "fwd_messages" in mess['fwd_messages'][0].keys():
-                    mess = mess['fwd_messages'][0]
-                for m in mess['fwd_messages']:
-                    if m['body'] not in self.quote_lines and m['uid'] == 183179115:
-                        self.add_quote(m['body']+ " © Führer\n")
-                        self.bot.send_message(ID, "--Цитата добавлена--")
+                self.mess_bfs(mess)
+                self.bot.send_message(ID, "--Цитата добавлена--")
             else:
                 if len(self.quote_lines):
                     self.bot.send_message(ID, random.choice(self.quote_lines))
