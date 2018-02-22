@@ -13,7 +13,7 @@ def delay_dec(func):
             try:
                 return func(*args, **kwargs)
             except:
-                if delay > 2:
+                if delay > 10:
                     return "err"
                 time.sleep(delay)
                 delay *= 2
