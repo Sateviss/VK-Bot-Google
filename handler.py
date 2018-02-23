@@ -32,13 +32,16 @@ class Handler:
         with io.open("quotes.txt", mode="a", encoding="UTF-8") as f:
             f.write(quote)
 
-    def mess_bfs(self, m):
+    def mess_bfs(self, m, s, f):
         if "fwd_messages" in m.keys():
             for fwd in m['fwd_messages']:
-                self.mess_bfs(fwd)
+                s, f = self.mess_bfs(fwd, s, f)
         if (m['body'] + " © Führer\n") not in self.quote_lines and m['uid'] == 183179115:
             self.add_quote(m['body'] + " © Führer\n")
-        return
+            s += 1
+        else:
+            f += 1
+        return s, f
 
     def handle_message(self, mess):
         ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['uid'])
@@ -46,7 +49,7 @@ class Handler:
             self.bot.send_message(ID, "--ок, ухажу--")
             subprocess.run("pkill python3", shell=1)
         elif mess['body'] == "!help":
-            self.bot.send_message(ID, "Список комманд:\n"
+            self.bot.send_message(ID, "Список команд:\n"
                                       "\t!help - вывести этот список\n"
                                       "\t!ping - понг\n"
                                       "\t!pong - пинг\n"
@@ -85,8 +88,8 @@ class Handler:
             self.bot.send_message(ID, youtube.down_and_send(link, ID, self.bot))
         elif mess['body'] == "!quote":
             if "fwd_messages" in mess.keys():
-                self.mess_bfs(mess)
-                self.bot.send_message(ID, "--Цитата добавлена--")
+                s, f = self.mess_bfs(mess, 0, 0)
+                self.bot.send_message(ID, "--Удачно добавлено {0} сообщений, не добавлено {1} сообщений--".format(s, f))
             else:
                 if len(self.quote_lines):
                     self.bot.send_message(ID, random.choice(self.quote_lines))

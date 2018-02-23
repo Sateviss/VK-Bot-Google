@@ -126,7 +126,7 @@ class VkWrap:
 
     @delay_dec
     def get_video_link(self, name_, description_):
-        return api.video.save(name=name_, description=description_, wallpost=0, no_comments=1, privacy_view="friends_of_friends_only")
+        return api.video.save(name=name_, description=description_, wallpost=0, no_comments=1, privacy_view="friends_of_friends")
 
     @delay_dec
     def delete_video(self, v_id):
