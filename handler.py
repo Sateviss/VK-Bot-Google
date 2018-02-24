@@ -22,7 +22,7 @@ class Handler:
         self.bot = wrapper
         self.safe_dict = {k.__name__: k for k in safe_list}
         self.nahui = []
-        self.me = self.bot.get_user()['uid']
+        self.me = self.bot.me
         self.t = time.time()+60
         self.last_message = -1
         self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
@@ -36,7 +36,7 @@ class Handler:
         if "fwd_messages" in m.keys():
             for fwd in m['fwd_messages']:
                 s, f = self.mess_bfs(fwd, s, f)
-        if (m['body'] + " © Führer\n") not in self.quote_lines and m['uid'] == 183179115:
+        if (m['body'] + " © Führer\n") not in self.quote_lines and m['uid'] == 183179115 and mess['body'] != "":
             self.add_quote(m['body'] + " © Führer\n")
             s += 1
         else:
@@ -95,6 +95,20 @@ class Handler:
                     self.bot.send_message(ID, random.choice(self.quote_lines))
                 else:
                     self.bot.send_message(ID, "--Цитат пока что нет--")
+        elif mess['body'] == "!quote all" and mess['uid'] == 136776175:
+            le = 100
+            total = 0
+            s, f = 0
+            while le == 100:
+                arr = self.bot.msg_search("!quote", 100, total)
+                for m in arr:
+                    total += 1
+                    if "fwd_messages" in m.keys() and m['uid'] != 183179115 and m['body'] == "!quote":
+                        s1, f1 = self.mess_bfs(m, 0, 0)
+                        s += s1
+                        f += f1
+                le = len(arr)
+                self.bot.send_message(ID, "--добавлено {0} сообщений, не добавлено {1} сообщений--".format(s, f - total))
         if mess['uid'] == 445077792:
             self.nahui.append([self.bot.send_message(ID, "[id445077792|Юра], иди нахуй"), time.time() + 20])
             print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")

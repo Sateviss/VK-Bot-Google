@@ -31,7 +31,6 @@ file.close()
 
 marvin = VkWrap(login, password)
 
-print("...working...")
 # marvin.send_message(ID, "---Бот Запущен---")
 
 safe_list = [math.acos, math.asin, math.atan, math.atan2, math.ceil, math.cos, math.cosh, math.degrees,
@@ -48,6 +47,8 @@ for i in range(num_worker_threads):
     t = Thread(target=worker)
     t.start()
     threads.append(t)
+
+print("...working...")
 
 while 1:
     time.sleep(0.1)

@@ -22,16 +22,15 @@ def delay_dec(func):
 
 class VkWrap:
 
-    api = vk.API
-    user_dict = {}
-
     def __init__(self, login, password):
         self.log_in(login, password)
+        self.user_dict = {}
 
     def log_in(self, login, password):
         session = vk.AuthSession(app_id=6322567, user_login=login, user_password=password, scope=268435455)
         global api
-        api = vk.API(session)
+        self.api = vk.API(session)
+        self.me = self.get_user()
 
     @delay_dec
     def execute(self, c):
@@ -111,6 +110,12 @@ class VkWrap:
             u = api.users.get()[0]
             self.user_dict.update({u_id: u})
         return u
+
+    @delay_dec
+    def msg_search(self, text, c, o):
+        a = self.api.messages.search(q=text, count=c, offset=o)
+        a.pop(0)
+        return a
 
     def gen_sage(self, n):
         o = ''
