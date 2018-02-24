@@ -36,7 +36,7 @@ class Handler:
         if "fwd_messages" in m.keys():
             for fwd in m['fwd_messages']:
                 s, f = self.mess_bfs(fwd, s, f)
-        if (m['body'] + " © Führer\n") not in self.quote_lines and m['uid'] == 183179115 and mess['body'] != "":
+        if (m['body'] + " © Führer\n") not in self.quote_lines and m['uid'] == 183179115 and m['body'] != "":
             self.add_quote(m['body'] + " © Führer\n")
             s += 1
         else:
