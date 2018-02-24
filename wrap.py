@@ -23,29 +23,28 @@ def delay_dec(func):
 class VkWrap:
 
     def __init__(self, login, password):
-        self.log_in(login, password)
+        self.api = self.log_in(login, password)
         self.user_dict = {}
+        self.me = self.get_user()
 
     def log_in(self, login, password):
         session = vk.AuthSession(app_id=6322567, user_login=login, user_password=password, scope=268435455)
-        global api
-        self.api = vk.API(session)
-        self.me = self.get_user()
+        return vk.API(session)
 
     @delay_dec
     def execute(self, c):
-        return api.execute(code = c)
+        return self.api.execute(code = c)
 
     @delay_dec
     def get_history(self, c_id):
-        return api.messages.getHistory(chat_id=c_id, count=1)[1]
+        return self.api.messages.getHistory(chat_id=c_id, count=1)[1]
 
     @delay_dec
     def get_inbox(self, lm = None):
         if lm == None:
-            return api.messages.get(count=1)[1]
+            return self.api.messages.get(count=1)[1]
         else:
-            mess = api.messages.get(count=200, last_message_id=lm)
+            mess = self.api.messages.get(count=200, last_message_id=lm)
             mess.pop(0)
             return mess
 
@@ -57,12 +56,12 @@ class VkWrap:
 
         if len(text) < 4000:
             if int(c_id) > 10000:
-                m = api.messages.send(user_id=c_id, message=text)
+                m = self.api.messages.send(user_id=c_id, message=text)
             else:
-                m = api.messages.send(chat_id=c_id, message=text)
+                m = self.api.messages.send(chat_id=c_id, message=text)
         else:
             if int(c_id) > 10000:
-                m = api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
+                m = self.api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
             else:
                 m = api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
         return m
@@ -74,26 +73,26 @@ class VkWrap:
                 return "err"
         if len(text) < 4000:
             if int(c_id) > 10000:
-                m = api.messages.send(user_id=c_id, message=text, attachment=att)
+                m = self.api.messages.send(user_id=c_id, message=text, attachment=att)
             else:
-                m = api.messages.send(chat_id=c_id, message=text, attachment=att)
+                m = self.api.messages.send(chat_id=c_id, message=text, attachment=att)
         else:
             if int(c_id) > 10000:
-                m = api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
+                m = self.api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
             else:
-                m = api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
+                m = self.api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
         return m
 
     @delay_dec
     def delete_message(self, m_id):
-        return api.messages.delete(message_ids=m_id, delete_for_all=1)
+        return self.api.messages.delete(message_ids=m_id, delete_for_all=1)
 
     @delay_dec
     def get_user(self, u_id=None):
         if self.user_dict.keys().__contains__(u_id):
             return self.user_dict[u_id]
         if u_id is not None:
-            u = api.users.get(user_id=u_id, fields="photo_id, verified, sex, bdate, city, country, home_town, "
+            u = self.api.users.get(user_id=u_id, fields="photo_id, verified, sex, bdate, city, country, home_town, "
                                                    "has_photo, photo_50, photo_100, photo_200_orig, photo_200, "
                                                    "photo_400_orig, photo_max, photo_max_orig, online, domain, "
                                                    "has_mobile, contacts, site, education, universities, "
@@ -107,7 +106,7 @@ class VkWrap:
                                                    ", friend_status, career, military, blacklisted, "
                                                    "blacklisted_by_me")[0]
         else:
-            u = api.users.get()[0]
+            u = self.api.users.get()[0]
             self.user_dict.update({u_id: u})
         return u
 
@@ -135,19 +134,19 @@ class VkWrap:
 
     @delay_dec
     def get_video_link(self, name_, description_):
-        return api.video.save(name=name_, description=description_, wallpost=0, no_comments=1, privacy_view="friends_of_friends")
+        return self.api.video.save(name=name_, description=description_, wallpost=0, no_comments=1, privacy_view="friends_of_friends")
 
     @delay_dec
     def get_friend(self, u_id):
-        return api.friends.get(user_id=u_id)
+        return self.api.friends.get(user_id=u_id)
 
     @delay_dec
     def delete_video(self, v_id):
-        return api.video.delete(video_id=v_id)
+        return self.api.video.delete(video_id=v_id)
 
     @delay_dec
     def cleanup_videos(self, s):
-        vids = api.video.get()
+        vids = self.api.video.get()
         vids.pop(0)
         i = 0
         while i < len(vids):
