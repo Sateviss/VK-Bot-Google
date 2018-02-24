@@ -12,6 +12,12 @@ import subprocess
 import io
 import random
 
+def isint(n):
+    try:
+        i = int(n)
+        return True
+    except:
+        return False
 
 class Handler:
     me = -1
@@ -36,8 +42,10 @@ class Handler:
         if "fwd_messages" in m.keys():
             for fwd in m['fwd_messages']:
                 s, f = self.mess_bfs(fwd, s, f)
-        if (m['body'] + " © Führer\n") not in self.quote_lines and m['uid'] == 183179115 and m['body'] != "":
-            self.add_quote(m['body'] + " © Führer\n")
+        pattern = re.compile(re.escape(m['body']+"<br>© Führer ")+"\(\d+\)\n")
+        filt = [i for i in filter(pattern.match, self.quote_lines)]
+        if not len(filt) and m['uid'] == 183179115 and m['body'] != "":
+            self.add_quote(m['body'] + "<br>© Führer ({0})\n".format(len(self.quote_lines)))
             s += 1
         else:
             f += 1
@@ -56,7 +64,8 @@ class Handler:
                                       "\t!stop - выключить бота (только для автора бота)\n"
                                       "\t!v - вычислить значение выражения (!help v чтобы вывести список команд)\n"
                                       "\t!yt - скачать видео с YouTube и загрузить его в вк, по ID\n"
-                                      "\t!quote - вывести/добавить цитату многоуважаемого фюрера\n")
+                                      "\t!quote - вывести/добавить цитату многоуважаемого фюрера\n"
+                                      "\t!flipcoin - монетка")
         elif mess['body'] == "!help v":
             self.bot.send_message(ID, "Список команд, разрешенных в !v:\n" + str("".join([i+" " for i in self.safe_dict.keys()])))
         elif mess['body'] == "!help quote":
@@ -86,30 +95,35 @@ class Handler:
             link = mess['body'].replace("!yt ", '')
             print(link)
             self.bot.send_message(ID, youtube.down_and_send(link, ID, self.bot))
-        elif mess['body'] == "!quote" and mess['uid'] != 183179115:
-            if "fwd_messages" in mess.keys():
-                s, f = self.mess_bfs(mess, 0, 0)
-                self.bot.send_message(ID, "--добавлено {0} сообщений, не добавлено {1} сообщений--".format(s, f-1))
-            else:
-                if len(self.quote_lines):
-                    self.bot.send_message(ID, random.choice(self.quote_lines))
+        elif mess['body'][:6] == "!quote" and mess['uid'] != 183179115:
+            if mess['body'] == "!quote":
+                if "fwd_messages" in mess.keys():
+                    s, f = self.mess_bfs(mess, 0, 0)
+                    self.bot.send_message(ID, "--добавлено {0} сообщений, не добавлено {1} сообщений--".format(s, f-1))
                 else:
-                    self.bot.send_message(ID, "--Цитат пока что нет--")
-        elif mess['body'] == "!quote all" and mess['uid'] == 136776175:
-            le = 100
-            total = 0
-            s = 0
-            f = 0
-            while le == 100:
-                arr = self.bot.msg_search("!quote", 100, total)
-                for m in arr:
-                    total += 1
-                    if "fwd_messages" in m.keys() and m['uid'] != 183179115 and m['body'] == "!quote":
-                        s1, f1 = self.mess_bfs(m, 0, 0)
-                        s += s1
-                        f += f1
-                le = len(arr)
-                self.bot.send_message(ID, "--добавлено {0} сообщений, не добавлено {1} сообщений--".format(s, f - total))
+                    if len(self.quote_lines):
+                        self.bot.send_message(ID, random.choice(self.quote_lines))
+                    else:
+                        self.bot.send_message(ID, "--Цитат пока что нет--")
+            if mess['body'] == "!quote all":
+                le = 100
+                total = 0
+                s = 0
+                while le == 100:
+                    arr = self.bot.msg_search("!quote", 100, total)
+                    for m in arr:
+                        total += 1
+                        if "fwd_messages" in m.keys() and m['uid'] != 183179115 and m['body'] == "!quote":
+                            s1, f1 = self.mess_bfs(m, 0, 0)
+                            s += s1
+                    le = len(arr)
+                self.bot.send_message(ID, "--Добавлено {0} сообщений--".format(s))
+            if isint(mess['body'].split()[1]):
+                n = int(mess['body'].split()[1])
+                if n < len(self.quote_lines):
+                    self.bot.send_message(ID, self.quote_lines[n])
+                else:
+                    self.bot.send_message(ID, "--Столько цитат ещё не добавлено, пока что их {0}--".format(len(self.quote_lines)))
         if mess['uid'] == 445077792:
             self.nahui.append([self.bot.send_message(ID, "[id445077792|Юра], иди нахуй"), time.time() + 20])
             print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
