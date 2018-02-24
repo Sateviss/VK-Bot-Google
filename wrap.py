@@ -34,6 +34,10 @@ class VkWrap:
         api = vk.API(session)
 
     @delay_dec
+    def execute(self, c):
+        return api.execute(code = c)
+
+    @delay_dec
     def get_history(self, c_id):
         return api.messages.getHistory(chat_id=c_id, count=1)[1]
 
@@ -127,6 +131,10 @@ class VkWrap:
     @delay_dec
     def get_video_link(self, name_, description_):
         return api.video.save(name=name_, description=description_, wallpost=0, no_comments=1, privacy_view="friends_of_friends")
+
+    @delay_dec
+    def get_friend(self, u_id):
+        return api.friends.get(user_id=u_id)
 
     @delay_dec
     def delete_video(self, v_id):

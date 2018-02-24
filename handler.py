@@ -86,10 +86,10 @@ class Handler:
             link = mess['body'].replace("!yt ", '')
             print(link)
             self.bot.send_message(ID, youtube.down_and_send(link, ID, self.bot))
-        elif mess['body'] == "!quote":
+        elif mess['body'] == "!quote" and mess['uid'] != 183179115:
             if "fwd_messages" in mess.keys():
                 s, f = self.mess_bfs(mess, 0, 0)
-                self.bot.send_message(ID, "--Удачно добавлено {0} сообщений, не добавлено {1} сообщений--".format(s, f))
+                self.bot.send_message(ID, "--добавлено {0} сообщений, не добавлено {1} сообщений--".format(s, f-1))
             else:
                 if len(self.quote_lines):
                     self.bot.send_message(ID, random.choice(self.quote_lines))
