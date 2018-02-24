@@ -98,7 +98,8 @@ class Handler:
         elif mess['body'] == "!quote all" and mess['uid'] == 136776175:
             le = 100
             total = 0
-            s, f = 0
+            s = 0
+            f = 0
             while le == 100:
                 arr = self.bot.msg_search("!quote", 100, total)
                 for m in arr:
