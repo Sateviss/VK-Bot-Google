@@ -45,10 +45,10 @@ class Handler:
 
     def handle_message(self, mess):
         ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['uid'])
-        if mess['uid'] == 136776175 and mess['body'] == "!stop":
+        if mess['uid'] == 136776175 and mess['body'] == "!stop":  #стоп бота
             self.bot.send_message(ID, "--ок, ухажу--")
             subprocess.run("pkill python3", shell=1)
-        elif mess['body'] == "!help":
+        elif mess['body'] == "!help":   #help 
             self.bot.send_message(ID, "Список команд:\n"
                                       "\t!help - вывести этот список\n"
                                       "\t!ping - понг\n"
@@ -57,21 +57,21 @@ class Handler:
                                       "\t!v - вычислить значение выражения (!help v чтобы вывести список команд)\n"
                                       "\t!yt - скачать видео с YouTube и загрузить его в вк, по ID\n"
                                       "\t!quote - вывести/добавить цитату многоуважаемого фюрера\n")
-        elif mess['body'] == "!help v":
+        elif mess['body'] == "!help v":  #help по выражениям
             self.bot.send_message(ID, "Список команд, разрешенных в !v:\n" + str("".join([i+" " for i in self.safe_dict.keys()])))
-        elif mess['body'] == "!help quote":
+        elif mess['body'] == "!help quote": #help по цитатнику фюрера
             self.bot.send_message(ID, "Напишите !quote чтобы получить случайную цитату фюрера, или перешлите его "
                                       "сообщение, с командой !quote чтобы добавить его в пул")
         elif "[id" + str(self.me) + "|" in mess['body']:
             user = self.bot.get_user(mess['uid'])
             self.bot.send_message(ID, "[id" + str(mess['uid']) + "|" + user['first_name'] + " " + user['last_name'] + "], отъебись блять")
-        elif mess['body'] == "!ping":
+        elif mess['body'] == "!ping":  #пинг понг
             self.bot.send_message(ID, "понг")
-        elif mess['body'] == "!pong":
+        elif mess['body'] == "!pong":   #понг пинг
             self.bot.send_message(ID, "пинг")
-        elif mess['body'] == "!flipcoin":
-            self.bot.send_message(ID, random.choice(['орёл', 'решка']))
-        elif mess['body'][:2] == "!v":
+        elif mess['body'] == "!flipcoin":  # собственно , монетка
+            self.bot.send_message(ID, random.choice(['орёл', 'решка'])) 
+        elif mess['body'][:2] == "!v":     
             try:
                 a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))
                 print(a)
@@ -82,7 +82,7 @@ class Handler:
                     self.bot.send_message(ID, o)
             except:
                 self.bot.send_message(ID, "-error-")
-        elif mess['body'][:3] == "!yt":
+        elif mess['body'][:3] == "!yt":    #Подгрузка видео с ютуба
             link = mess['body'].replace("!yt ", '')
             print(link)
             self.bot.send_message(ID, youtube.down_and_send(link, ID, self.bot))
@@ -110,10 +110,10 @@ class Handler:
                         f += f1
                 le = len(arr)
                 self.bot.send_message(ID, "--добавлено {0} сообщений, не добавлено {1} сообщений--".format(s, f - total))
-        if mess['uid'] == 445077792:
+        if mess['uid'] == 445077792: #Шлём Юру нах
             self.nahui.append([self.bot.send_message(ID, "[id445077792|Юра], иди нахуй"), time.time() + 20])
             print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
-        if (mess['uid'] == 461460001 or mess['uid'] == 463718240) and 'attachments' in mess.keys():
+        if (mess['uid'] == 461460001 or mess['uid'] == 463718240) and 'attachments' in mess.keys(): #Шлём нах ботов с проном
             self.bot.send_message(ID, self.bot.gen_sage(49))
             self.bot.send_message(ID, "АНТИПОРН")
             print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Антипорн!")
