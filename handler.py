@@ -59,13 +59,14 @@ class Handler:
             subprocess.run("pkill python3", shell=1)
         elif mess['body'] == "!update" and mess['uid'] == 136776175:
             self.bot.send_message(ID, "-принято, обновляюсь-")
-            subprocess.run("pkill python3; git pull; nohup python3 main.py &")
+            subprocess.run("pkill python3; git pull; nohup python3 main.py &", shell=1)
         elif mess['body'] == "!help":
             self.bot.send_message(ID, "Список команд:\n"
                                       "!help - вывести этот список\n"
                                       "!ping - понг\n"
                                       "!pong - пинг\n"
                                       "!stop - выключить бота (только для автора бота)\n"
+                                      "!update - обновить до последней версии (только для автора бота)\n"
                                       "!v - вычислить значение выражения (!help v чтобы вывести список команд)\n"
                                       "!yt - скачать видео с YouTube и загрузить его в вк, по ID\n"
                                       "!quote - вывести/добавить цитату многоуважаемого фюрера\n"
