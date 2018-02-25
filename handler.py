@@ -85,7 +85,7 @@ class Handler:
                                       "!v - вычислить значение выражения (!help v)\n"
                                       "!yt - скачать видео с YouTube и загрузить его в вк, по ID")
         elif mess['body'] == "!help v":
-            self.bot.send_message(ID, "Список команд, разрешенных в !v:\n" + str("".join([i+" " for i in self.safe_dict.keys()])))
+            self.bot.send_message(ID, "Список команд, разрешенных в !v:\n" + str("".join([i+"\n" for i in self.safe_dict.keys()])))
         elif mess['body'] == "!help quote":
             self.bot.send_message(ID, "Подкоманды !quote:\n"
                                       "!quote - вывести случайную цитату\n"
