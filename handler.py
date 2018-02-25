@@ -62,15 +62,15 @@ class Handler:
             subprocess.run("pkill python3; git pull; nohup python3 main.py &", shell=1)
         elif mess['body'] == "!help":
             self.bot.send_message(ID, "Список команд:\n"
-                                      "!help - вывести этот список\n"
+                                      "!flipcoin - монетка\n"
                                       "!ping - понг\n"
                                       "!pong - пинг\n"
+                                      "!help - вывести этот список\n"
+                                      "!quote - вывести/добавить цитату многоуважаемого фюрера (!help quote)\n"
                                       "!stop - выключить бота (только для автора бота)\n"
                                       "!update - обновить до последней версии (только для автора бота)\n"
-                                      "!v - вычислить значение выражения (!help v чтобы вывести список команд)\n"
-                                      "!yt - скачать видео с YouTube и загрузить его в вк, по ID\n"
-                                      "!quote - вывести/добавить цитату многоуважаемого фюрера\n"
-                                      "!flipcoin - монетка")
+                                      "!v - вычислить значение выражения (!help v)\n"
+                                      "!yt - скачать видео с YouTube и загрузить его в вк, по ID")
         elif mess['body'] == "!help v":
             self.bot.send_message(ID, "Список команд, разрешенных в !v:\n" + str("".join([i+" " for i in self.safe_dict.keys()])))
         elif mess['body'] == "!help quote":
@@ -95,7 +95,7 @@ class Handler:
                 a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))
                 print(a)
                 o = str(simple_eval(a, functions=self.safe_dict))
-                if len(o.split()) == 0 or "\b" in o:
+                if len(o.split()) == 0 or "\b" in o or "\a" in o or "\a" in o:
                     self.bot.send_message(ID, "[id" + str(mess['uid']) + "|ПИДОР]!")
                 else:
                     self.bot.send_message(ID, o)
@@ -115,7 +115,7 @@ class Handler:
                         self.bot.send_message(ID, random.choice(self.quote_lines))
                     else:
                         self.bot.send_message(ID, "--Цитат пока что нет--")
-            if len(mess['body'].split())>1:
+            if len(mess['body'].split()) > 1:
                 if mess['body'] == "!quote all":
                     le = 100
                     total = 0
