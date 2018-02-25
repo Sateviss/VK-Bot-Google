@@ -13,12 +13,22 @@ import io
 import random
 import requests
 
+
 def isint(n):
     try:
         i = int(n)
         return True
     except:
         return False
+
+
+def contains_escapes(s):
+    escapes = ['\a', '\b', '\f', '\r', '\v']
+    for e in escapes:
+        if e in s:
+            return True
+    return False
+
 
 class Handler:
     me = -1
@@ -95,7 +105,7 @@ class Handler:
                 a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))
                 print(a)
                 o = str(simple_eval(a, functions=self.safe_dict))
-                if len(o.split()) == 0 or "\b" in o or "\a" in o or "\a" in o:
+                if len(o.split()) == 0 or contains_escapes(o):
                     self.bot.send_message(ID, "[id" + str(mess['uid']) + "|ПИДОР]!")
                 else:
                     self.bot.send_message(ID, o)
