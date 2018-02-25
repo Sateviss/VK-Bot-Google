@@ -121,7 +121,7 @@ class Handler:
                     self.bot.send_message(ID, "--Добавлено {0} сообщений--".format(s))
                 if isint(mess['body'].split()[1]):
                     n = int(mess['body'].split()[1])
-                    if n < abs(len(self.quote_lines)):
+                    if abs(n) < len(self.quote_lines):
                         self.bot.send_message(ID, self.quote_lines[n])
                     else:
                         self.bot.send_message(ID, "--Столько цитат ещё не добавлено, пока что их {0}--".format(len(self.quote_lines)))
