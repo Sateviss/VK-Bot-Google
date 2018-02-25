@@ -57,6 +57,9 @@ class Handler:
         if mess['uid'] == 136776175 and mess['body'] == "!stop":
             self.bot.send_message(ID, "--ок, ухажу--")
             subprocess.run("pkill python3", shell=1)
+        elif mess['body'] == "!update" and mess['uid'] == 136776175:
+            self.bot.send_message(ID, "-принято, обновляюсь-")
+            subprocess.run("pkill python3; git pull; nohup python3 main.py &")
         elif mess['body'] == "!help":
             self.bot.send_message(ID, "Список команд:\n"
                                       "!help - вывести этот список\n"
