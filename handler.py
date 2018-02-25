@@ -11,6 +11,7 @@ import youtube
 import subprocess
 import io
 import random
+import requests
 
 def isint(n):
     try:
@@ -119,12 +120,19 @@ class Handler:
                                 s += s1
                         le = len(arr)
                     self.bot.send_message(ID, "--Добавлено {0} сообщений--".format(s))
-                if isint(mess['body'].split()[1]):
+                elif isint(mess['body'].split()[1]):
                     n = int(mess['body'].split()[1])
                     if abs(n) < len(self.quote_lines):
                         self.bot.send_message(ID, self.quote_lines[n])
                     else:
                         self.bot.send_message(ID, "--Столько цитат ещё не добавлено, пока что их {0}--".format(len(self.quote_lines)))
+                elif mess['body'] == "!quote get":
+                    url = self.bot.doc_get_url()
+                    f = open("quotes.txt", 'rb')
+                    r = requests.post(url=url, files={'file': f}).json()
+                    file = self.bot.doc_save(r['file'])[0]
+                    string = "doc{0}_{1}".format(str(file['owner_id']), str(file['did']))
+                    self.bot.send_attachment(ID, "лови", string)
         if mess['uid'] == 445077792:
             self.nahui.append([self.bot.send_message(ID, "[id445077792|Юра], иди нахуй"), time.time() + 20])
             print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
