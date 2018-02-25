@@ -72,7 +72,7 @@ class Handler:
             subprocess.run("pkill python3", shell=1)
         elif mess['body'] == "!update" and mess['uid'] == 136776175:
             self.bot.send_message(ID, "-принято, обновляюсь-")
-            subprocess.run("pkill python3; git pull; nohup python3 main.py &", shell=1)
+            subprocess.run("pkill python3; git pull; nohup python3 main.py update {ID} &", shell=1)
         elif mess['body'] == "!help":
             self.bot.send_message(ID, "Список команд:\n"
                                       "!flipcoin - монетка\n"
@@ -85,7 +85,7 @@ class Handler:
                                       "!v - вычислить значение выражения (!help v)\n"
                                       "!yt - скачать видео с YouTube и загрузить его в вк, по ID")
         elif mess['body'] == "!help v":
-            self.bot.send_message(ID, "Список команд, разрешенных в !v:\n" + str("".join([i+"\n" for i in self.safe_dict.keys()])))
+            self.bot.send_message(ID, "Список команд, разрешенных в !v:\n" + str("".join([i+"\n " for i in self.safe_dict.keys()])))
         elif mess['body'] == "!help quote":
             self.bot.send_message(ID, "Подкоманды !quote:\n"
                                       "!quote - вывести случайную цитату\n"
