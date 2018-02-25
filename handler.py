@@ -126,6 +126,8 @@ class Handler:
                         self.bot.send_message(ID, self.quote_lines[n])
                     else:
                         self.bot.send_message(ID, "--Столько цитат ещё не добавлено, пока что их {0}--".format(len(self.quote_lines)))
+                elif mess['body'] == "!quote last":
+                    self.bot.send_message(ID, self.quote_lines[-1])
                 elif mess['body'] == "!quote get":
                     url = self.bot.doc_get_url()
                     f = open("quotes.txt", 'rb')
