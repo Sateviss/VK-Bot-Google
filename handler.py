@@ -23,7 +23,7 @@ def isint(n):
 
 
 def contains_escapes(s):
-    escapes = ['\a', '\b', '\f', '\r', '\v']
+    escapes = ['\a', '\b', '\f', '\r', '\v', "\0"]
     for e in escapes:
         if e in s:
             return True
