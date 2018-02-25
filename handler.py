@@ -47,6 +47,10 @@ class Handler:
         self.last_message = -1
         self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
 
+    def changelog(self, ID):
+        c = io.open("changelog", mode="r", encoding="UTF-8")
+        self.bot.send_message(ID, c.read())
+
     def add_quote(self, quote):
         self.quote_lines.append(quote)
         with io.open("quotes.txt", mode="a", encoding="UTF-8") as f:
@@ -75,28 +79,61 @@ class Handler:
             subprocess.run("pkill python3; git pull; nohup python3 main.py update {0} &".format(ID), shell=1)
         elif mess['body'] == "!help":
             self.bot.send_message(ID, "Список команд:\n"
-                                      "!flipcoin - монетка\n"
-                                      "!ping - понг\n"
-                                      "!pong - пинг\n"
-                                      "!help - вывести этот список\n"
-                                      "!quote - вывести/добавить цитату многоуважаемого фюрера (!help quote)\n"
-                                      "!stop - выключить бота (только для автора бота)\n"
-                                      "!update - обновить до последней версии (только для автора бота)\n"
-                                      "!v - вычислить значение выражения (!help v)\n"
-                                      "!yt - скачать видео с YouTube и загрузить его в вк, по ID")
+                                      "• !changelog - вывести чейнджлог последнего обновления\n"
+                                      "• ﻿!flipcoin - монетка\n"
+                                      "• ﻿!ping - понг\n"
+                                      "• ﻿!pong - пинг\n"
+                                      "• ﻿!help - вывести этот список\n"
+                                      "• ﻿!quote - вывести/добавить цитату многоуважаемого фюрера (!help quote)\n"
+                                      "• ﻿!stop - выключить бота (только для автора бота)\n"
+                                      "• ﻿!update - обновить до последней версии (только для автора бота)\n"
+                                      "• ﻿!v - вычислить значение выражения (!help v)\n"
+                                      "• ﻿!yt - скачать видео с YouTube и загрузить его в вк, по ID"
+                                      "")
         elif mess['body'] == "!help v":
-            self.bot.send_message(ID, "Список команд, разрешенных в !v:\n" + str("".join([i+"\n" for i in self.safe_dict.keys()])))
+            self.bot.send_message(ID, "Список команд, разрешенных в !v:\n"
+                                      "• ﻿acos(x) - Арккосинус x в радианах\n"
+                                      "• ﻿asin(x) - Арксинус x в радианах\n"
+                                      "• ﻿atan(x) - Арктангенс x в радианах\n"
+                                      "• ﻿atan2(y, x) - Арктангенс y / x в радианах\n"
+                                      "• ﻿ceil(x) - Округляет x до ближайшего целого в  большую сторону\n"
+                                      "• ﻿cos(x) - Косинус x радиан\n"
+                                      "• ﻿cosh(x) - Гиперболический косинус x\n"
+                                      "• ﻿degrees(x) - Переводит угол x из радиан в градусы\n"
+                                      "• ﻿exp(x) -  Возводит e в степень x\n"
+                                      "• ﻿fabs(x) - Выводит модуль x\n"
+                                      "• ﻿floor(x) - Округляет x до ближайшего целого в  меньшую сторону\n"
+                                      "• ﻿fmod(x, y) - Остаток от деления x на y\n"
+                                      "• ﻿frexp(x) - Выводит мантиссу и экспоненту числа x\n"
+                                      "• ﻿hypot(x, y) - Вычисляет гипотенузу прямоугольного треугольника с катетами x и y\n"
+                                      "• ﻿ldexp(x, i) - по мантиссе x и экспоненте i выводит число\n"
+                                      "• ﻿log(a, b) - Логарифм числа a по основанию b\n"
+                                      "• ﻿log10(x) - Десятичный логарифм числа a\n"
+                                      "• ﻿modf(x) - Выводит дробную и целую часть числа x. Обе части сохраняют знак x\n"
+                                      "• ﻿pow(x, y) - Возводит число х в степень y\n"
+                                      "• ﻿radians(x) - Переводит угол x из градусов в радианы\n"
+                                      "• ﻿sin(x)  -  Синус x радиан\n"
+                                      "• ﻿sinh(x) - Гиперболический синус x\n"
+                                      "• ﻿sqrt(x) - Корень положительного числа x\n"
+                                      "• ﻿tan(x) -  Тангенс x радиан\n"
+                                      "• ﻿tanh(x) - Гиперболический тангенс x\n"
+                                      "• ﻿randrange([a], b, [s]) - Выдаёт случайное число на промежутке от [a, b) ([0, b) , если a не предоставлено), с шагом s (1, если s не предоставлено)\n"
+                                      "• ﻿int(x) - Переводит x в целое число\n"
+                                      "• ﻿str(x) - Переводит x в строку\n"
+                                      "")
         elif mess['body'] == "!help quote":
             self.bot.send_message(ID, "Подкоманды !quote:\n"
-                                      "!quote - вывести случайную цитату\n"
-                                      "!quote N - вывести цитату номер N (N - целое число)\n"
-                                      "!quote и переслать сообщение Фюрера - добавить цитату в пул\n"
-                                      "!quote all - скачать все цитаты, которые были ранее пересланы\n"
-                                      "!quote get - получить файл со списком цитат\n"
-                                      "!quote last - вывести последнюю добавленную цитату\n")
+                                      "• ﻿!quote - вывести случайную цитату\n"
+                                      "• ﻿!quote N - вывести цитату номер N (N - целое число)\n"
+                                      "• ﻿!quote и переслать сообщение Фюрера - добавить цитату в пул\n"
+                                      "• ﻿!quote all - скачать все цитаты, которые были ранее пересланы\n"
+                                      "• ﻿!quote get - получить файл со списком цитат\n"
+                                      "• ﻿!quote last - вывести последнюю добавленную цитату\n")
         elif "[id" + str(self.me) + "|" in mess['body']:
             user = self.bot.get_user(mess['uid'])
             self.bot.send_message(ID, "[id" + str(mess['uid']) + "|" + user['first_name'] + " " + user['last_name'] + "], отъебись блять")
+        elif mess['body'] == "!changelog":
+            self.changelog(ID)
         elif mess['body'] == "!ping":  #пинг понг
             self.bot.send_message(ID, "понг")
         elif mess['body'] == "!pong":   #понг пинг
