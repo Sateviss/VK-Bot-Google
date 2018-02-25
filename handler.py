@@ -59,19 +59,23 @@ class Handler:
             subprocess.run("pkill python3", shell=1)
         elif mess['body'] == "!help":
             self.bot.send_message(ID, "Список команд:\n"
-                                      "\t!help - вывести этот список\n"
-                                      "\t!ping - понг\n"
-                                      "\t!pong - пинг\n"
-                                      "\t!stop - выключить бота (только для автора бота)\n"
-                                      "\t!v - вычислить значение выражения (!help v чтобы вывести список команд)\n"
-                                      "\t!yt - скачать видео с YouTube и загрузить его в вк, по ID\n"
-                                      "\t!quote - вывести/добавить цитату многоуважаемого фюрера\n"
-                                      "\t!flipcoin - монетка")
+                                      "!help - вывести этот список\n"
+                                      "!ping - понг\n"
+                                      "!pong - пинг\n"
+                                      "!stop - выключить бота (только для автора бота)\n"
+                                      "!v - вычислить значение выражения (!help v чтобы вывести список команд)\n"
+                                      "!yt - скачать видео с YouTube и загрузить его в вк, по ID\n"
+                                      "!quote - вывести/добавить цитату многоуважаемого фюрера\n"
+                                      "!flipcoin - монетка")
         elif mess['body'] == "!help v":
             self.bot.send_message(ID, "Список команд, разрешенных в !v:\n" + str("".join([i+" " for i in self.safe_dict.keys()])))
         elif mess['body'] == "!help quote":
-            self.bot.send_message(ID, "Напишите !quote чтобы получить случайную цитату фюрера, или перешлите его "
-                                      "сообщение, с командой !quote чтобы добавить его в пул")
+            self.bot.send_message(ID, "Подкоманды !quote:\n"
+                                      "!quote - вывести случайную цитату\n"
+                                      "!quote и переслать сообщение Фюрера - добавить цитату в пул\n"
+                                      "!quote all - скачать все цитаты, которые были ранее пересланы\n"
+                                      "!quote get - получить файл со списком цитат\n"
+                                      "!quote last - вывести последнюю добавленную цитату\n")
         elif "[id" + str(self.me) + "|" in mess['body']:
             user = self.bot.get_user(mess['uid'])
             self.bot.send_message(ID, "[id" + str(mess['uid']) + "|" + user['first_name'] + " " + user['last_name'] + "], отъебись блять")
@@ -86,7 +90,7 @@ class Handler:
                 a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))
                 print(a)
                 o = str(simple_eval(a, functions=self.safe_dict))
-                if len(o.split()) == 0:
+                if len(o.split()) == 0 or "\b" in o:
                     self.bot.send_message(ID, "[id" + str(mess['uid']) + "|ПИДОР]!")
                 else:
                     self.bot.send_message(ID, o)
