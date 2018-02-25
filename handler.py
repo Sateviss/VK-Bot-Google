@@ -113,6 +113,10 @@ class Handler:
         if mess['uid'] == 445077792: #Шлём Юру нах
             self.nahui.append([self.bot.send_message(ID, "[id445077792|Юра], иди нахуй"), time.time() + 20])
             print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
+        if mess['uid'] == 182192214: #Паша пришел
+            self.nahui.append([self.bot.send_message(ID, "[id182192214|Сентябрь] горит"), time.time() + 40])
+            print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Сентябрь приплелся")
+
         if (mess['uid'] == 461460001 or mess['uid'] == 463718240) and 'attachments' in mess.keys(): #Шлём нах ботов с проном
             self.bot.send_message(ID, self.bot.gen_sage(49))
             self.bot.send_message(ID, "АНТИПОРН")
