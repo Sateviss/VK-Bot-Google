@@ -22,12 +22,11 @@ def isint(n):
         return False
 
 
-def contains_escapes(s):
+def remove_escapes(s: str):
     escapes = ['\a', '\b', '\f', '\r', '\v', "\0"]
     for e in escapes:
-        if e in s:
-            return True
-    return False
+        s.replace(e, "")
+    return s
 
 
 class Handler:
@@ -104,8 +103,8 @@ class Handler:
             try:
                 a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))
                 print(a)
-                o = str(simple_eval(a, functions=self.safe_dict))
-                if len(o.split()) == 0 or contains_escapes(o):
+                o = remove_escapes(str(simple_eval(a, functions=self.safe_dict)))
+                if len(o.split()) == 0 or len(o) == 0:
                     self.bot.send_message(ID, "[id" + str(mess['uid']) + "|ПИДОР]!")
                 else:
                     self.bot.send_message(ID, o)
