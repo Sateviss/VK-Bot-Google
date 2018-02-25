@@ -23,10 +23,14 @@ def isint(n):
 
 
 def remove_escapes(s: str):
-    escapes = ['\a', '\b', '\f', '\r', '\v', "\0"]
-    for e in escapes:
-        s.replace(e, "")
-    return s
+    escapes = ['\a', '\b', '\f', '\r', '\v', '\0']
+    o = []
+    for c in s:
+        if c in escapes:
+            o.append(" ")
+        else:
+            o.append(c)
+    return "".join(o)
 
 
 class Handler:
