@@ -105,25 +105,26 @@ class Handler:
                         self.bot.send_message(ID, random.choice(self.quote_lines))
                     else:
                         self.bot.send_message(ID, "--Цитат пока что нет--")
-            if mess['body'] == "!quote all":
-                le = 100
-                total = 0
-                s = 0
-                while le == 100:
-                    arr = self.bot.msg_search("!quote", 100, total)
-                    for m in arr:
-                        total += 1
-                        if "fwd_messages" in m.keys() and m['uid'] != 183179115 and m['body'] == "!quote":
-                            s1, f1 = self.mess_bfs(m, 0, 0)
-                            s += s1
-                    le = len(arr)
-                self.bot.send_message(ID, "--Добавлено {0} сообщений--".format(s))
-            if isint(mess['body'].split()[1]):
-                n = int(mess['body'].split()[1])
-                if n < abs(len(self.quote_lines)):
-                    self.bot.send_message(ID, self.quote_lines[n])
-                else:
-                    self.bot.send_message(ID, "--Столько цитат ещё не добавлено, пока что их {0}--".format(len(self.quote_lines)))
+            if len(mess['body'].split())>1:
+                if mess['body'] == "!quote all":
+                    le = 100
+                    total = 0
+                    s = 0
+                    while le == 100:
+                        arr = self.bot.msg_search("!quote", 100, total)
+                        for m in arr:
+                            total += 1
+                            if "fwd_messages" in m.keys() and m['uid'] != 183179115 and m['body'] == "!quote":
+                                s1, f1 = self.mess_bfs(m, 0, 0)
+                                s += s1
+                        le = len(arr)
+                    self.bot.send_message(ID, "--Добавлено {0} сообщений--".format(s))
+                if isint(mess['body'].split()[1]):
+                    n = int(mess['body'].split()[1])
+                    if n < abs(len(self.quote_lines)):
+                        self.bot.send_message(ID, self.quote_lines[n])
+                    else:
+                        self.bot.send_message(ID, "--Столько цитат ещё не добавлено, пока что их {0}--".format(len(self.quote_lines)))
         if mess['uid'] == 445077792:
             self.nahui.append([self.bot.send_message(ID, "[id445077792|Юра], иди нахуй"), time.time() + 20])
             print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
