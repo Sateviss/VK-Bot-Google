@@ -72,7 +72,7 @@ class Handler:
             subprocess.run("pkill python3", shell=1)
         elif mess['body'] == "!update" and mess['uid'] == 136776175:
             self.bot.send_message(ID, "-принято, обновляюсь-")
-            subprocess.run("pkill python3; git pull; nohup python3 main.py -update -{ID} &", shell=1)
+            subprocess.run("pkill python3; git pull; nohup python3 main.py update {0} &".format(ID), shell=1)
         elif mess['body'] == "!help":
             self.bot.send_message(ID, "Список команд:\n"
                                       "!flipcoin - монетка\n"
