@@ -19,7 +19,7 @@ def down_and_send(v_id, ID, bot):
         f = open("Download/"+v_id+"/video.mp4", 'rb')
         r = requests.post(url=resp['upload_url']
                           , files={'file': f})
-        bot.send_attachment(ID, "", "video470444116_"+str(r.json()['video_id']))
+        bot.send_attachment(ID, "", "video"+str(bot.me)+"_"+str(r.json()['video_id']))
         subprocess.run("rm -rf Download/{}".format(quote(v_id)), shell=1)
         return "--done--"
     except:

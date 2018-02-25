@@ -28,8 +28,16 @@ class VkWrap:
         self.me = self.get_user()
 
     def log_in(self, login, password):
-        session = vk.AuthSession(app_id=6322567, user_login=login, user_password=password, scope=268435455)
+        session = vk.AuthSession(app_id=6386090, user_login=login, user_password=password, scope=268435455)
         return vk.API(session)
+
+    @delay_dec
+    def doc_get_url(self):
+        return self.api.docs.getUploadServer()['upload_url']
+
+    @delay_dec
+    def doc_save(self, link):
+        return self.api.docs.save(file=link)
 
     @delay_dec
     def execute(self, c):
@@ -63,7 +71,7 @@ class VkWrap:
             if int(c_id) > 10000:
                 m = self.api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
             else:
-                m = api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
+                m = self.api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
         return m
 
     @delay_dec
@@ -78,9 +86,11 @@ class VkWrap:
                 m = self.api.messages.send(chat_id=c_id, message=text, attachment=att)
         else:
             if int(c_id) > 10000:
-                m = self.api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
+                m = self.api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200]
+                                           , attachment=att)
             else:
-                m = self.api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
+                m = self.api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200]
+                                           , attachment=att)
         return m
 
     @delay_dec

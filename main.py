@@ -8,7 +8,7 @@ from wrap import VkWrap
 from handler import Handler
 import queue
 import random
-
+import sys
 
 def worker():
     while True:
@@ -49,6 +49,11 @@ for i in range(num_worker_threads):
     threads.append(t)
 
 print("...working...")
+
+a = sys.argv
+if len(a) == 3:
+    if a[1] == "update":
+        marvin.send_message(a[2], "-обновление завершено-")
 
 while 1:
     time.sleep(0.1)
