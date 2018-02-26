@@ -25,7 +25,7 @@ class VkWrap:
     def __init__(self, login, password):
         self.api = self.log_in(login, password)
         self.user_dict = {}
-        self.me = self.get_user()
+        self.me = self.get_user()['uid']
 
     def log_in(self, login, password):
         session = vk.AuthSession(app_id=6386090, user_login=login, user_password=password, scope=268435455)
