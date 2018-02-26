@@ -105,7 +105,7 @@ class Handler:
                 if len(o.split()) == 0 or len(o) == 0:
                     self.bot.send_message(ID, "[id" + str(mess['uid']) + "|ПИДОР]!")
                 else:
-                    self.bot.send_message(ID, o)
+                    self.bot.send_message(ID, o+" [id{0}|©]".format(mess['uid']))
             except:
                 self.bot.send_message(ID, "-error-")
         elif mess['body'][:3] == "!yt":    #Подгрузка видео с ютуба
