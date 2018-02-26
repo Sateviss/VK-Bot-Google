@@ -70,6 +70,8 @@ class Handler:
         return s, f
 
     def handle_message(self, mess):
+        if mess['uid'] == 136330319:
+            return "err"
         ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['uid'])
         if mess['uid'] == 136776175 and mess['body'] == "!stop":  #стоп бота
             self.bot.send_message(ID, "--ок, ухажу--")
