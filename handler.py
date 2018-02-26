@@ -23,7 +23,7 @@ def isint(n):
 
 
 def remove_escapes(s: str):
-    escapes = ['\a', '\b', '\f', '\r', '\v', '\0']
+    escapes = ['\a', '\b', '\f', '\r', '\v', '\0']  #Список символов , которые могут убить бота
     o = []
     for c in s:
         if c in escapes:
@@ -47,23 +47,23 @@ class Handler:
         self.last_message = -1
         self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
 
-    def changelog(self, ID):
+    def changelog(self, ID):    #чейнджлог
         c = io.open("changelog", mode="r", encoding="UTF-8")
         self.bot.send_message(ID, c.read())
 
-    def add_quote(self, quote):
+    def add_quote(self, quote):       #добавление цитаты фюрера в цитатник фюрера
         self.quote_lines.append(quote)
         with io.open("quotes.txt", mode="a", encoding="UTF-8") as f:
             f.write(quote)
 
-    def mess_bfs(self, m, s, f):
+    def mess_bfs(self, m, s, f):     #поиск сообщений фюрера в пересланных , чтобы добавить цитаты
         if "fwd_messages" in m.keys():
             for fwd in m['fwd_messages']:
                 s, f = self.mess_bfs(fwd, s, f)
         pattern = re.compile(re.escape(m['body']+"<br>© Führer ")+"\(\d+\)\n")
         filt = [i for i in filter(pattern.match, self.quote_lines)]
         if not len(filt) and m['uid'] == 183179115 and m['body'] != "":
-            self.add_quote(m['body'] + "<br>© Führer ({0})\n".format(len(self.quote_lines)))
+            self.add_quote(m['body'] + "<br>© Führer ({0})\n".format(len(self.quote_lines)))  #нашли - добавили
             s += 1
         else:
             f += 1
@@ -71,48 +71,70 @@ class Handler:
 
     def handle_message(self, mess):
         ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['uid'])
-        if mess['uid'] == 136776175 and mess['body'] == "!stop":  #стоп бота
+        if mess['uid'] == 136776175 and mess['body'] == "!stop":                                 #стоп бота
             self.bot.send_message(ID, "--ок, ухажу--")
+            print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), " отключение")
             subprocess.run("pkill python3", shell=1)
-        elif mess['body'] == "!update" and mess['uid'] == 136776175:
+            
+        elif mess['body'] == "!update" and mess['uid'] == 136776175:                          #обновление до последней версии
             self.bot.send_message(ID, "-принято, обновляюсь-")
+            print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), " Обновление")
             subprocess.run("pkill python3; git pull; nohup python3 main.py update {0} &".format(ID), shell=1)
-        elif mess['body'] == "!help":
+            
+            
+        elif mess['body'] == "!help":                                        #запрос на вывод общей справки 
             c = io.open("help/help", mode="r", encoding="UTF-8")
             self.bot.send_message(ID, c.read())
-        elif mess['body'] == "!help v":
+            print("help")
+            
+        elif mess['body'] == "!help v":                                         #справка по команде !v (вывод сообщения или решение выражения)
             c = io.open("help/v", mode="r", encoding="UTF-8")
             self.bot.send_message(ID, c.read())
-        elif mess['body'] == "!help quote":
+            print("help v")
+            
+        elif mess['body'] == "!help quote":                                  #справка по цитатнику
             c = io.open("help/quote", mode="r", encoding="UTF-8")
             self.bot.send_message(ID, c.read())
-        elif "[id" + str(self.me) + "|" in mess['body']:
+            print("help quote")
+            
+        elif "[id" + str(self.me) + "|" in mess['body']:                #шлем товарища нафиг , если он зовет нас ссылко на бота в сообщении
             user = self.bot.get_user(mess['uid'])
             self.bot.send_message(ID, "[id" + str(mess['uid']) + "|" + user['first_name'] + " " + user['last_name'] + "], отъебись блять")
-        elif mess['body'] == "!changelog":
+            print("Somebody remind me")
+            
+        elif mess['body'] == "!changelog":           #вывод чейнджлога
             self.changelog(ID)
-        elif mess['body'] == "!ping":  #пинг понг
+            print("changelog")
+            
+        elif mess['body'] == "!ping":                        #пинг понг
             self.bot.send_message(ID, "понг")
-        elif mess['body'] == "!pong":   #понг пинг
+            print("ping")
+            
+        elif mess['body'] == "!pong":                        #понг пинг
             self.bot.send_message(ID, "пинг")
-        elif mess['body'] == "!flipcoin":  # собственно , монетка
+            print("pong")
+            
+        elif mess['body'] == "!flipcoin":                        # собственно , монетка
             self.bot.send_message(ID, random.choice(['орёл', 'решка'])) 
-        elif mess['body'][:2] == "!v":     
+            print("монетка")
+            
+        elif mess['body'][:2] == "!v":                              #если просят что-то вывести или посчитать
             try:
-                a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))
-                print(a)
+                a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))    #считаем
+                print(a)            # в лог сообщение
                 o = remove_escapes(str(simple_eval(a, functions=self.safe_dict)))
                 if len(o.split()) == 0 or len(o) == 0:
-                    self.bot.send_message(ID, "[id" + str(mess['uid']) + "|ПИДОР]!")
+                    self.bot.send_message(ID, "[id" + str(mess['uid']) + "|ПИДОР]!")  #если результат заставляет вывести пустое сообщение, шлем подальше
                 else:
-                    self.bot.send_message(ID, o)
+                    self.bot.send_message(ID, o)            #если все валидно , выводим
             except:
-                self.bot.send_message(ID, "-error-")
-        elif mess['body'][:3] == "!yt":    #Подгрузка видео с ютуба
+                self.bot.send_message(ID, "-error-")       #невалидный ввод
+        elif mess['body'][:3] == "!yt":               #Подгрузка видео с ютуба
             link = mess['body'][-len("7-LPcVo7gC0"):]
-            print(link)
+            print(link)      #в лог ссылку на видео
             self.bot.send_message(ID, youtube.down_and_send(link, ID, self.bot))
-        elif mess['body'][:6] == "!quote" and mess['uid'] != 183179115:
+            
+        elif mess['body'][:6] == "!quote" and mess['uid'] != 183179115:   #цитатник
             if mess['body'] == "!quote":
                 if "fwd_messages" in mess.keys():
                     s, f = self.mess_bfs(mess, 0, 0)
@@ -122,7 +144,7 @@ class Handler:
                         self.bot.send_message(ID, random.choice(self.quote_lines))
                     else:
                         self.bot.send_message(ID, "--Цитат пока что нет--")
-            if len(mess['body'].split()) > 1: #Циатник
+            if len(mess['body'].split()) > 1:                #цитатник
                 if mess['body'] == "!quote all":
                     le = 100
                     total = 0
@@ -151,14 +173,16 @@ class Handler:
                     file = self.bot.doc_save(r['file'])[0]
                     string = "doc{0}_{1}".format(str(file['owner_id']), str(file['did']))
                     self.bot.send_attachment(ID, "лови", string)
-        if mess['uid'] == 445077792: #Шлём Юру нах
+                    
+        if mess['uid'] == 445077792:                         #Шлём Юру нах
             self.nahui.append([self.bot.send_message(ID, "[id445077792|Юра], иди нахуй"), time.time() + 20])
-            print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
-        if mess['uid'] == 182192214: #Паша пришел
-            self.nahui.append([self.bot.send_message(ID, "[id182192214|Сентябрь] горит"), time.time() + 40])
-            print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Сентябрь приплелся")
+            print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй") #в лог
+            
+        if mess['uid'] == 182192214:                            #Паша пришел
+            self.nahui.append([self.bot.send_message(ID, "[id182192214|Сентябрь] все ещё горит"), time.time() + 40])
+            print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Сентябрь приплелся") #в лог
 
-        if (mess['uid'] == 461460001 or mess['uid'] == 463718240) and 'attachments' in mess.keys(): #Шлём нах ботов с проном
+        if (mess['uid'] == 461460001 or mess['uid'] == 463718240) and 'attachments' in mess.keys():   #Шлём нах ботов с проном
             self.bot.send_message(ID, self.bot.gen_sage(49))
             self.bot.send_message(ID, "АНТИПОРН")
-            print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Антипорн!")
+            print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Антипорн!")  #в лог
