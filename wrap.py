@@ -58,17 +58,17 @@ class VkWrap:
 
     @delay_dec
     def send_message(self, c_id, text):
-        if int(c_id) > 10000:
+        if int(c_id) > 100000:
             if self.get_user(c_id)['can_write_private_message'] == 0:
                 return "err"
 
         if len(text) < 4000:
-            if int(c_id) > 10000:
+            if int(c_id) > 100000:
                 m = self.api.messages.send(user_id=c_id, message=text)
             else:
                 m = self.api.messages.send(chat_id=c_id, message=text)
         else:
-            if int(c_id) > 10000:
+            if int(c_id) > 100000:
                 m = self.api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
             else:
                 m = self.api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
@@ -76,16 +76,16 @@ class VkWrap:
 
     @delay_dec
     def send_attachment(self, c_id, text, att):
-        if int(c_id) > 10000:
+        if int(c_id) > 100000:
             if self.get_user(c_id)['can_write_private_message'] == 0:
                 return "err"
         if len(text) < 4000:
-            if int(c_id) > 10000:
+            if int(c_id) > 100000:
                 m = self.api.messages.send(user_id=c_id, message=text, attachment=att)
             else:
                 m = self.api.messages.send(chat_id=c_id, message=text, attachment=att)
         else:
-            if int(c_id) > 10000:
+            if int(c_id) > 100000:
                 m = self.api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200]
                                            , attachment=att)
             else:
