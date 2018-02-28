@@ -12,11 +12,12 @@ import subprocess
 import io
 import random
 import requests
+import praw
 
 
 def isint(n):
     try:
-        i = int(n)
+        int(n)
         return True
     except:
         return False
@@ -46,6 +47,7 @@ class Handler:
         self.t = time.time()+60
         self.last_message = -1
         self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
+        self.reddit = praw.Reddit()
 
     def changelog(self, ID):
         c = io.open("changelog", mode="r", encoding="UTF-8")
@@ -123,7 +125,7 @@ class Handler:
                     else:
                         self.bot.send_message(ID, "--Цитат пока что нет--")
             if len(mess['body'].split()) > 1: #Циатник
-                if mess['body'] == "!quote all":
+                if mess['body'] == "!quote all" and mess['uid'] == 136776175:
                     le = 100
                     total = 0
                     s = 0
