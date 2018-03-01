@@ -52,7 +52,7 @@ class Handler:
                                   user_agent='Marvin')
 
     def send_aww(self, ID):
-        subs = self.reddit.subreddit("aww").hot()
+        subs = [k for k in self.reddit.subreddit("aww").hot()]
         while 1:
             s = random.choice(subs)
             if s.url[-4:] == ".jpg":
@@ -171,8 +171,9 @@ class Handler:
                     file = self.bot.doc_save(r['file'])[0]
                     string = "doc{0}_{1}".format(str(file['owner_id']), str(file['did']))
                     self.bot.send_attachment(ID, "лови", string)
-                elif mess['body'] == "!aww":
-                    self.send_aww(ID)
+        elif mess['body'] == "!aww":
+            self.send_aww(ID)
+
         if mess['uid'] == 165211652:
             self.nahui.append([self.bot.send_message(ID, "Привет, Женя"), time.time() + 20])
             print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Привет Женя")
