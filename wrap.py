@@ -25,7 +25,7 @@ class VkWrap:
     def __init__(self, login, password):
         self.api = self.log_in(login, password)
         self.user_dict = {}
-        self.me = self.get_user()['uid']
+        self.me = self.get_user()['id']
 
     def log_in(self, login, password):
         session = vk.AuthSession(app_id=6386090, user_login=login, user_password=password, scope=268435455)
@@ -97,11 +97,10 @@ class VkWrap:
     def delete_message(self, m_id):
         return self.api.messages.delete(message_ids=m_id, delete_for_all=1)
 
-    @delay_dec
     def get_user(self, u_id=None):
-        if self.user_dict.keys().__contains__(u_id):
-            return self.user_dict[u_id]
         if u_id is not None:
+            if u_id in self.user_dict.keys():
+                return self.user_dict[u_id]
             u = self.api.users.get(user_id=u_id, fields="photo_id, verified, sex, bdate, city, country, home_town, "
                                                    "has_photo, photo_50, photo_100, photo_200_orig, photo_200, "
                                                    "photo_400_orig, photo_max, photo_max_orig, online, domain, "
@@ -116,8 +115,8 @@ class VkWrap:
                                                    ", friend_status, career, military, blacklisted, "
                                                    "blacklisted_by_me")[0]
         else:
-            u = self.api.users.get()[0]
-            self.user_dict.update({u_id: u})
+            u = self.api.users.get(v="5.8")[0]
+        self.user_dict.update({u_id: u})
         return u
 
     @delay_dec

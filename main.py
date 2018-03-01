@@ -18,6 +18,8 @@ def worker():
         func = item[0]
         try:
             func(item[1])
+        except Exception as e:
+            print(e)
         finally:
             q.task_done()
 
@@ -37,6 +39,7 @@ safe_list = [math.acos, math.asin, math.atan, math.atan2, math.ceil, math.cos, m
              math.exp, math.fabs, math.floor, math.fmod, math.frexp, math.hypot, math.ldexp, math.log, math.log10,
              math.modf, math.pow, math.radians, math.sin, math.sinh, math.sqrt, math.tan, math.tanh, random.randrange,
              int, str]
+
 handle = Handler(marvin, safe_list)
 
 q = queue.Queue()
