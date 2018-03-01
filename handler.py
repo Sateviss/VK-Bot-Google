@@ -47,7 +47,25 @@ class Handler:
         self.t = time.time()+60
         self.last_message = -1
         self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
-        # self.reddit = praw.Reddit()
+        self.reddit = praw.Reddit(client_id='wG7Qwo-mAbkSoQ',
+                                  client_secret='FUrav__HGF0e08Vv6CJBfk-bCrA',
+                                  user_agent='Marvin')
+
+    def send_aww(self, ID):
+        subs = self.reddit.subreddit("aww").hot()
+        while 1:
+            s = random.choice(subs)
+            if s.url[-4:] == ".jpg":
+                f = requests.get(s.url)._content
+                url = self.bot.get_photo_link()['upload_url']
+                file = open(str(hash(f)) + ".jpg", "wb")
+                file.write(f)
+                file.close()
+                r = requests.post(url=url, files={'photo': open(str(hash(f)) + ".jpg", "rb")}).json()
+                p = self.bot.save_photo(**r)
+                self.bot.send_attachment(ID, "", p['id'])
+                os.remove(str(hash(f)) + ".jpg")
+                return
 
     def changelog(self, ID):
         c = io.open("changelog", mode="r", encoding="UTF-8")
@@ -153,9 +171,12 @@ class Handler:
                     file = self.bot.doc_save(r['file'])[0]
                     string = "doc{0}_{1}".format(str(file['owner_id']), str(file['did']))
                     self.bot.send_attachment(ID, "лови", string)
+                elif mess['body'] == "!aww":
+                    self.send_aww(ID)
         if mess['uid'] == 165211652:
             self.nahui.append([self.bot.send_message(ID, "Привет, Женя"), time.time() + 20])
             print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Привет Женя")
+
         if mess['uid'] == 445077792: #Шлём Юру нах
             self.nahui.append([self.bot.send_message(ID, "[id445077792|Юра], иди нахуй"), time.time() + 20])
             print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")

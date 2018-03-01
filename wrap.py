@@ -148,11 +148,11 @@ class VkWrap:
 
     @delay_dec
     def get_photo_link(self):
-        return self.api.photos.getUploadServer()
+        return self.api.photos.getMessagesUploadServer()
 
     @delay_dec
     def save_photo(self, **kwargs):
-        return self.api.photos.saveMessagesPhoto(**kwargs)
+        return self.api.photos.saveMessagesPhoto(**kwargs)[0]
 
     @delay_dec
     def get_friend(self, u_id):
