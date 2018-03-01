@@ -47,7 +47,7 @@ class Handler:
         self.t = time.time()+60
         self.last_message = -1
         self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
-        self.reddit = praw.Reddit()
+        # self.reddit = praw.Reddit()
 
     def changelog(self, ID):
         c = io.open("changelog", mode="r", encoding="UTF-8")
@@ -153,6 +153,9 @@ class Handler:
                     file = self.bot.doc_save(r['file'])[0]
                     string = "doc{0}_{1}".format(str(file['owner_id']), str(file['did']))
                     self.bot.send_attachment(ID, "лови", string)
+        if mess['uid'] == 165211652:
+            self.nahui.append([self.bot.send_message(ID, "Привет, Женя"), time.time() + 20])
+            print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Привет Женя")
         if mess['uid'] == 445077792: #Шлём Юру нах
             self.nahui.append([self.bot.send_message(ID, "[id445077792|Юра], иди нахуй"), time.time() + 20])
             print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")

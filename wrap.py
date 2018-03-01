@@ -147,11 +147,11 @@ class VkWrap:
         return self.api.video.save(name=name_, description=description_, wallpost=0, no_comments=1, privacy_view="friends_of_friends")
 
     @delay_dec
-    def get_photo_link(self, a_id):
-        return self.api.photos.getUploadServer(album_id=a_id)
+    def get_photo_link(self):
+        return self.api.photos.getUploadServer()
 
     @delay_dec
-    def save_photo_message(self, **kwargs):
+    def save_photo(self, **kwargs):
         return self.api.photos.saveMessagesPhoto(**kwargs)
 
     @delay_dec
