@@ -194,7 +194,8 @@ class Handler:
 
     def handle_message(self, mess):
         ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['uid'])
-        f = self.func_dict[mess['body'].split()[0][1:]]
+        com = mess['body'].split()[0][1:]
+        f = self.func_dict[com]
         f(mess, ID)
         if mess['uid'] in self.greetings.keys():
             self.greet(mess, ID)

@@ -54,7 +54,7 @@ a = sys.argv
 if len(a) == 3:
     if a[1] == "update":
         marvin.send_message(a[2], "-обновление завершено-")
-        handle.changelog(a[2])
+        handle.changelog(mess=None, ID=a[2])
 
 while 1:
     time.sleep(0.1)
