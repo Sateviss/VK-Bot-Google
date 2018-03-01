@@ -1,6 +1,5 @@
-/.venv/
+venv/
 /.idea/
-/.Download/
 /.__pycache__/
 .DS_Store
 *.txt
