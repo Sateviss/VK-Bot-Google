@@ -13,6 +13,7 @@ import logging
 
 logger = logging.Logger("VK-Bot")
 
+
 def worker():
     while True:
         item = q.get()
@@ -27,6 +28,7 @@ def worker():
         finally:
             q.task_done()
 
+
 def deleter(hand: Handler, bot: VkWrap):
     while True:
         time.sleep(0.1)
@@ -36,13 +38,13 @@ def deleter(hand: Handler, bot: VkWrap):
         else:
             hand.nahui.put(item)
 
+
 num_worker_threads = 4
 
-file = open("login.txt", "r")
-login = file.readline().replace('\n', '')
-password = file.readline().replace('\n', '')
-api_key = file.readline().replace('\n', '')
-file.close()
+lines = [line.rstrip('\n') for line in open('login.txt', 'r')]
+login = lines[0]
+password = lines[1]
+api_key = lines[2]
 
 marvin = VkWrap(login, password)
 

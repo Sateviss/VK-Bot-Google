@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import vk_requests
-import time
-import sys
-import requests
 import pprint
+import time
+
+import requests
+import vk_requests
+
+vk_message_maxlen = 4000
 
 
 def delay_dec(func):
@@ -61,14 +63,13 @@ class VkWrap:
         else:
             return self.api.messages.get(count=200, last_message_id=lm)['items']
 
-
     @delay_dec
     def send_message(self, c_id, text):
         if int(c_id) > 100000:
             if self.get_user(c_id)['can_write_private_message'] == 0:
                 return "err"
 
-        if len(text) < 4000:
+        if len(text) < vk_message_maxlen:
             if int(c_id) > 100000:
                 m = self.api.messages.send(user_id=c_id, message=text)
             else:

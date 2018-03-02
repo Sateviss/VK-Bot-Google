@@ -17,6 +17,8 @@ from simpleeval import simple_eval
 import youtube
 from wrap import VkWrap
 
+reddit_img_server = 'https://i.redd.it/oqnxnvhpts201.jpg'
+
 
 def isint(n):
     try:
@@ -46,7 +48,8 @@ class Handler:
         self.me = self.bot.me
         self.t = time.time()+60
         self.last_message = -1
-        self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
+        if os.path.exists("quotes.txt"):
+            self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
         self.reddit = praw.Reddit(client_id='wG7Qwo-mAbkSoQ',
                                   client_secret='FUrav__HGF0e08Vv6CJBfk-bCrA',
                                   user_agent='Marvin')
@@ -100,11 +103,11 @@ class Handler:
             s = subs[i]
             nums.remove(i)
             if s.url[-4:] == ".jpg":
-                if s.over_18:# and ID != mess['user_id']:
+                if s.over_18:  # and ID != mess['user_id']:
                     self.bot.send_message(ID, "NSFW: {0}, но для желающих ссылка: {1}".format(
-                        subreddit, (self.shortener.short(s.url) if len(s.url) > len('https://i.redd.it/oqnxnvhpts201.jpg')+2 else s.url)))
+                        subreddit, (self.shortener.short(s.url) if len(s.url) > len(reddit_img_server) + 2 else s.url)))
                 else:
-                    f = requests.get(s.url)._content
+                    f = requests.get(s.url).content
                     url = self.bot.get_photo_link()['upload_url']
                     file = open(str(hash(f)) + ".jpg", "wb")
                     file.write(f)
@@ -123,12 +126,12 @@ class Handler:
     def stop(self, mess, ID):
         if mess['user_id'] in self.admins:
             self.bot.send_message(ID, "ок, ухажу")
-            subprocess.run("pkill python3", shell=1)
+            subprocess.run("pkill python3", shell=True)
 
     def update(self, mess, ID):
         if mess['user_id'] in self.admins:
             self.bot.send_message(ID, "-принято, обновляюсь-")
-            subprocess.run("pkill python3; git pull; nohup python3 main.py update {0} &".format(ID), shell=1)
+            subprocess.run("pkill python3; git pull; nohup python3 main.py update {0} &".format(ID), shell=True)
 
     def help(self, mess, ID):
         if mess['body'] == "help":
