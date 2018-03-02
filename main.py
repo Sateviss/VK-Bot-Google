@@ -26,6 +26,14 @@ def worker():
         finally:
             q.task_done()
 
+def deleter(hand: Handler, bot: VkWrap):
+    while True:
+        time.sleep(0.1)
+        item = hand.nahui.get()
+        if item[1] < time.time():
+            bot.delete_message(item[0])
+        else:
+            hand.nahui.put(item)
 
 num_worker_threads = 4
 
@@ -49,6 +57,10 @@ q = queue.Queue()
 threads = []
 last_message = marvin.get_inbox()[0]['id']
 
+t = Thread(target=deleter, args=(handle, marvin))
+t.start()
+threads.append(t)
+
 for i in range(num_worker_threads):
     t = Thread(target=worker)
     t.start()
@@ -63,7 +75,6 @@ if len(a) == 3:
         handle.changelog(mess=None, ID=a[2])
 
 while 1:
-    time.sleep(0.1)
     l_m = marvin.get_inbox()[0]['id']
     if l_m != last_message:
         q.join()
@@ -71,10 +82,4 @@ while 1:
         last_message = l_m
         for m in inbox:
             q.put((handle.handle_message, m))
-    i = 0
-    while i < len(handle.nahui):
-        if handle.nahui[i][1] < time.time():
-            handle.bot.delete_message(handle.nahui[i][0])
-            handle.nahui.pop(i)
-            continue
-        i += 1
+    marvin.wait_for_lp()

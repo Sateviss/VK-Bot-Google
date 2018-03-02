@@ -14,6 +14,7 @@ import random
 import requests
 import praw
 import logging
+import queue
 
 
 def isint(n):
@@ -40,7 +41,7 @@ class Handler:
     def __init__(self, wrapper: VkWrap, safe_list, logger):
         self.bot = wrapper
         self.safe_dict = {k.__name__: k for k in safe_list}
-        self.nahui = []
+        self.nahui = queue.Queue()
         self.me = self.bot.me
         self.t = time.time()+60
         self.last_message = -1
@@ -122,7 +123,7 @@ class Handler:
                 self.bot.send_message(ID, "--Такого файла помощи не существует--")
 
     def ping(self, mess, ID):
-        self.bot.send_message(ID, "понг")
+        self.bot.send_message(ID, "понг ({0} мс)".format(int(1000*(time.time()-mess['date']))))
 
     def pong(self, mess, ID):
             self.bot.send_message(ID, "пинг")
@@ -191,8 +192,7 @@ class Handler:
 
     def greet(self, mess, ID):
         m = self.bot.send_message(ID, self.greetings[mess['user_id']][0])
-        self.nahui.append([m, time.time()+self.greetings[mess['user_id']][0]])
-
+        self.nahui.put([m, time.time()+self.greetings[mess['user_id']][1]])
     def handle_message(self, mess):
         if 'chat_id' in mess.keys():
             ID = mess['chat_id']
@@ -209,11 +209,7 @@ class Handler:
         com = mess['body'].split()[0][1:]
         if com in self.func_dict:
             f = self.func_dict[com]
-        else:
-            return
-        f(mess, ID)
+            f(mess, ID)
         if mess['user_id'] in self.greetings.keys():
             self.greet(mess, ID)
-        else:
-            return
 

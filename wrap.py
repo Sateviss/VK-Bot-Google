@@ -4,6 +4,7 @@
 import vk_requests
 import time
 import sys
+import requests
 
 
 def delay_dec(func):
@@ -27,12 +28,14 @@ class VkWrap:
         self.user_dict = {}
         self.me = self.get_user()['id']
 
+    @delay_dec
     def log_in(self, login, password):
 
         return vk_requests.create_api(app_id=6386090,
                                       login=login,
                                       password=password,
-                                      scope=268435455)
+                                      scope=268435455,
+                                      api_version="5.72")
 
     @delay_dec
     def doc_get_url(self):
@@ -99,6 +102,7 @@ class VkWrap:
     def delete_message(self, m_id):
         return self.api.messages.delete(message_ids=m_id, delete_for_all=1)
 
+    @delay_dec
     def get_user(self, u_id=None):
         if u_id is not None:
             if u_id in self.user_dict.keys():
@@ -175,3 +179,8 @@ class VkWrap:
                 self.delete_video(vids[i]['id'])
             else:
                 i += 1
+
+    @delay_dec
+    def wait_for_lp(self):
+        lps = self.api.messages.getLongPollServer(lp_version=2)
+        r = requests.post("https://{0}?act=a_check&key={1}&ts={2}&wait=25&mode=2&version=2".format(lps['server'], lps['key'], lps['ts'])).json()
