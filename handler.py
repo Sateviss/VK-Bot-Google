@@ -91,7 +91,7 @@ class Handler:
                 file.close()
                 r = requests.post(url=url, files={'photo': open(str(hash(f)) + ".jpg", "rb")}).json()
                 p = self.bot.save_photo(**r)
-                self.bot.send_attachment(ID, "", p['id'])
+                self.bot.send_attachment(ID,"" , "photo{0}_{1}".format(p['owner_id'], p['id']))
                 os.remove(str(hash(f)) + ".jpg")
                 return
 
