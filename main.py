@@ -75,11 +75,7 @@ if len(a) == 3:
         handle.changelog(mess=None, ID=a[2])
 
 while 1:
-    l_m = marvin.get_inbox()[0]['id']
-    if l_m != last_message:
-        q.join()
-        inbox = marvin.get_inbox(last_message)
-        last_message = l_m
-        for m in inbox:
-            q.put((handle.handle_message, m))
-    marvin.wait_for_lp()
+    q.join()
+    inbox = marvin.get_inbox_lp()
+    for m in inbox:
+        q.put((handle.handle_message, m))

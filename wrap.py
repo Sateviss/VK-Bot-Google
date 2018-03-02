@@ -5,6 +5,7 @@ import vk_requests
 import time
 import sys
 import requests
+import pprint
 
 
 def delay_dec(func):
@@ -181,6 +182,18 @@ class VkWrap:
                 i += 1
 
     @delay_dec
-    def wait_for_lp(self):
+    def get_inbox_lp(self):
         lps = self.api.messages.getLongPollServer(lp_version=2)
         r = requests.post("https://{0}?act=a_check&key={1}&ts={2}&wait=25&mode=2&version=2".format(lps['server'], lps['key'], lps['ts'])).json()
+        pprint.pprint(r)
+        output = []
+        for u in r['updates']:
+            if u[0] == 4:
+                dict_formed = {'id': u[0], 'peer_id': u[3], 'date': u[4], 'body':u[5]}
+                if dict_formed['peer_id'] < 2000000000:
+                    dict_formed.update({'user_id': dict_formed['peer_id']})
+                else:
+                    dict_formed.update({'chat_id': dict_formed['peer_id']-2000000000})
+                    dict_formed.update({'user_id': u[6]['from']})
+                output.append(dict_formed)
+        return output
