@@ -164,7 +164,7 @@ class VkWrap:
 
     @delay_dec
     def get_chat(self, chat_id):
-        return self.api.getChat(chat_id=chat_id)
+        return self.api.messages.getChat(chat_id=chat_id)
 
     @delay_dec
     def cleanup_videos(self, s):
