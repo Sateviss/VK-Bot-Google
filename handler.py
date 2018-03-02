@@ -232,7 +232,7 @@ class Handler:
                                                          "PM",
                                                          self.bot.get_user(mess['user_id']),
                                                          mess['body']))
-        if re.match(r"^[\\|\/|!]\w+", mess['body']) is not None:
+        if re.match(r'^[\\/!]\w+', mess['body']) is not None:
             com = mess['body'].split()[0][1:]
             mess['body'] = mess['body'][1:]
         else:
