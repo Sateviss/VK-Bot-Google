@@ -9,6 +9,9 @@ from handler import Handler
 import queue
 import random
 import sys
+import logging
+
+logger = logging.Logger("VK-Bot")
 
 def worker():
     while True:
@@ -19,7 +22,7 @@ def worker():
         try:
             func(item[1])
         except Exception as e:
-            print(e)
+            logger.exception('Got exception on worker Thread')
         finally:
             q.task_done()
 
@@ -40,11 +43,11 @@ safe_list = [math.acos, math.asin, math.atan, math.atan2, math.ceil, math.cos, m
              math.modf, math.pow, math.radians, math.sin, math.sinh, math.sqrt, math.tan, math.tanh, random.randrange,
              int, str]
 
-handle = Handler(marvin, safe_list)
+handle = Handler(marvin, safe_list, logger)
 
 q = queue.Queue()
 threads = []
-last_message = marvin.get_inbox()['mid']
+last_message = marvin.get_inbox()[0]['id']
 
 for i in range(num_worker_threads):
     t = Thread(target=worker)
@@ -61,7 +64,7 @@ if len(a) == 3:
 
 while 1:
     time.sleep(0.1)
-    l_m = marvin.get_inbox()['mid']
+    l_m = marvin.get_inbox()[0]['id']
     if l_m != last_message:
         q.join()
         inbox = marvin.get_inbox(last_message)

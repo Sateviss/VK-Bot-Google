@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import vk
+import vk_requests
 import time
 import sys
 
@@ -12,9 +12,9 @@ def delay_dec(func):
         while 1:
             try:
                 return func(*args, **kwargs)
-            except:
+            except Exception as e:
                 if delay > 10:
-                    return "err"
+                    raise e
                 time.sleep(delay)
                 delay *= 2
     return func_wrapper
@@ -28,8 +28,11 @@ class VkWrap:
         self.me = self.get_user()['id']
 
     def log_in(self, login, password):
-        session = vk.AuthSession(app_id=6386090, user_login=login, user_password=password, scope=268435455)
-        return vk.API(session)
+
+        return vk_requests.create_api(app_id=6386090,
+                                      login=login,
+                                      password=password,
+                                      scope=268435455)
 
     @delay_dec
     def doc_get_url(self):
@@ -41,20 +44,19 @@ class VkWrap:
 
     @delay_dec
     def execute(self, c):
-        return self.api.execute(code = c)
+        return self.api.execute(code=c)
 
     @delay_dec
     def get_history(self, c_id):
         return self.api.messages.getHistory(chat_id=c_id, count=1)[1]
 
     @delay_dec
-    def get_inbox(self, lm = None):
-        if lm == None:
-            return self.api.messages.get(count=1)[1]
+    def get_inbox(self, lm=None):
+        if lm is None:
+            return self.api.messages.get(count=1)['items']
         else:
-            mess = self.api.messages.get(count=200, last_message_id=lm)
-            mess.pop(0)
-            return mess
+            return self.api.messages.get(count=200, last_message_id=lm)['items']
+
 
     @delay_dec
     def send_message(self, c_id, text):
@@ -115,14 +117,13 @@ class VkWrap:
                                                    ", friend_status, career, military, blacklisted, "
                                                    "blacklisted_by_me")[0]
         else:
-            u = self.api.users.get(v="5.8")[0]
+            u = self.api.users.get()[0]
         self.user_dict.update({u_id: u})
         return u
 
     @delay_dec
     def msg_search(self, text, c, o):
-        a = self.api.messages.search(q=text, count=c, offset=o)
-        a.pop(0)
+        a = self.api.messages.search(q=text, count=c, offset=o)['items']
         return a
 
     def gen_sage(self, n):
@@ -162,12 +163,15 @@ class VkWrap:
         return self.api.video.delete(video_id=v_id)
 
     @delay_dec
+    def get_chat(self, chat_id):
+        return self.api.getChat(chat_id=chat_id)
+
+    @delay_dec
     def cleanup_videos(self, s):
         vids = self.api.video.get()
-        vids.pop(0)
         i = 0
         while i < len(vids):
             if vids[i]['date'] < time.time()-s:
-                self.delete_video(vids[i]['vid'])
+                self.delete_video(vids[i]['id'])
             else:
                 i += 1

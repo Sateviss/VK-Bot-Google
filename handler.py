@@ -13,6 +13,7 @@ import io
 import random
 import requests
 import praw
+import logging
 
 
 def isint(n):
@@ -36,7 +37,7 @@ def remove_escapes(s: str):
 
 class Handler:
 
-    def __init__(self, wrapper: VkWrap, safe_list):
+    def __init__(self, wrapper: VkWrap, safe_list, logger):
         self.bot = wrapper
         self.safe_dict = {k.__name__: k for k in safe_list}
         self.nahui = []
@@ -56,6 +57,7 @@ class Handler:
         func_list = [self.aww, self.changelog, self.stop, self.update, self.help, self.ping, self.pong, self.flipcoin,
                      self.v, self.yt, self.quote]
         self.func_dict = {k.__name__: k for k in func_list}
+        self.logger = logger
 
     def mess_bfs(self, m, s, f):
 
@@ -69,7 +71,7 @@ class Handler:
                 s, f = self.mess_bfs(fwd, s, f)
         pattern = re.compile(re.escape(m['body']+"<br>© Führer ")+"\(\d+\)\n")
         filt = [i for i in filter(pattern.match, self.quote_lines)]
-        if not len(filt) and m['uid'] == 183179115 and m['body'] != "":
+        if not len(filt) and m['user_id'] == 183179115 and m['body'] != "":
             add_quote(m['body'] + "<br>© Führer ({0})\n".format(len(self.quote_lines)))
             s += 1
         else:
@@ -97,12 +99,12 @@ class Handler:
         self.bot.send_message(ID, c.read())
 
     def stop(self, mess, ID):
-        if mess['uid'] in self.admins:
+        if mess['user_id'] in self.admins:
             self.bot.send_message(ID, "--ок, ухажу--")
             subprocess.run("pkill python3", shell=1)
 
     def update(self, mess, ID):
-        if mess['uid'] in self.admins:
+        if mess['user_id'] in self.admins:
             self.bot.send_message(ID, "-принято, обновляюсь-")
             subprocess.run("pkill python3; git pull; nohup python3 main.py update {0} &".format(ID), shell=1)
 
@@ -134,9 +136,9 @@ class Handler:
             print(a)
             o = remove_escapes(str(simple_eval(a, functions=self.safe_dict)))
             if len(o.split()) == 0 or len(o) == 0:
-                self.bot.send_message(ID, "[id" + str(mess['uid']) + "|ПИДОР]!")
+                self.bot.send_message(ID, "[id" + str(mess['user_id']) + "|ПИДОР]!")
             else:
-                self.bot.send_message(ID, o + " [id{0}|©]".format(mess['uid']))
+                self.bot.send_message(ID, o + " [id{0}|©]".format(mess['user_id']))
         except:
             self.bot.send_message(ID, "-error-")
 
@@ -146,7 +148,7 @@ class Handler:
         self.bot.send_message(ID, youtube.down_and_send(link, ID, self.bot))
 
     def quote(self, mess, ID):
-        if mess['uid'] == 183179115:
+        if mess['user_id'] == 183179115:
             return
         if mess['body'] == "!quote":
             if "fwd_messages" in mess.keys():
@@ -158,7 +160,7 @@ class Handler:
                 else:
                     self.bot.send_message(ID, "--Цитат пока что нет--")
         if len(mess['body'].split()) > 1:  # Циатник
-            if mess['body'] == "!quote all" and mess['uid'] == 136776175:
+            if mess['body'] == "!quote all" and mess['user_id'] == 136776175:
                 le = 100
                 total = 0
                 s = 0
@@ -166,7 +168,7 @@ class Handler:
                     arr = self.bot.msg_search("!quote", 100, total)
                     for m in arr:
                         total += 1
-                        if "fwd_messages" in m.keys() and m['uid'] != 183179115 and m['body'] == "!quote":
+                        if "fwd_messages" in m.keys() and m['user_id'] != 183179115 and m['body'] == "!quote":
                             s1, f1 = self.mess_bfs(m, 0, 0)
                             s += s1
                     le = len(arr)
@@ -182,21 +184,36 @@ class Handler:
                 self.bot.send_message(ID, self.quote_lines[-1])
             elif mess['body'] == "!quote get":
                 url = self.bot.doc_get_url()
-                f = open("quotes.txt", 'rb')
-                r = requests.post(url=url, files={'file': f}).json()
+                r = requests.post(url=url, files={'file': open("quotes.txt", 'rb')}).json()
                 file = self.bot.doc_save(r['file'])[0]
-                string = "doc{0}_{1}".format(str(file['owner_id']), str(file['did']))
+                string = "doc{0}_{1}".format(str(file['owner_id']), str(file['id']))
                 self.bot.send_attachment(ID, "лови", string)
 
     def greet(self, mess, ID):
-        m = self.bot.send_message(ID, self.greetings[mess['uid']][0])
-        self.nahui.append([m, time.time()+self.greetings[mess['uid']][0]])
+        m = self.bot.send_message(ID, self.greetings[mess['user_id']][0])
+        self.nahui.append([m, time.time()+self.greetings[mess['user_id']][0]])
 
     def handle_message(self, mess):
-        ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['uid'])
+        if 'chat_id' in mess.keys():
+            ID = mess['chat_id']
+            self.logger.info("{0} ({1}) {2}: {3}".format(time.strftime("%d.%m.%Y %H:%M:%S"),
+                                                         self.bot.get_chat(mess['chat_id']),
+                                                         self.bot.get_user(mess['user_id']),
+                                                         mess['body']))
+        else:
+            ID = mess['user_id']
+            self.logger.info("{0} ({1}) {2}: {3}".format(time.strftime("%d.%m.%Y %H:%M:%S"),
+                                                         "PM",
+                                                         self.bot.get_user(mess['user_id']),
+                                                         mess['body']))
         com = mess['body'].split()[0][1:]
-        f = self.func_dict[com]
+        if com in self.func_dict:
+            f = self.func_dict[com]
+        else:
+            return
         f(mess, ID)
-        if mess['uid'] in self.greetings.keys():
+        if mess['user_id'] in self.greetings.keys():
             self.greet(mess, ID)
+        else:
+            return
 
