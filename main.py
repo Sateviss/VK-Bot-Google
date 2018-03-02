@@ -22,6 +22,7 @@ def worker():
         try:
             func(item[1])
         except Exception as e:
+            print(e)
             logger.exception('Got exception on worker Thread')
         finally:
             q.task_done()

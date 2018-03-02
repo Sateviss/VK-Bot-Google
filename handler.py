@@ -236,7 +236,7 @@ class Handler:
                 f = self.func_dict[com]
                 f(mess, ID)
             except Exception as e:
-                self.bot.send_message(ID, "--error--")
+                self.bot.send_message(ID, "--error: {0}--".format(e.args))
                 raise e
         if mess['user_id'] in self.greetings.keys():
             self.greet(mess, ID)
