@@ -1,20 +1,21 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from wrap import VkWrap
-from simpleeval import simple_eval
-import math
-import time
-import os
-import re
-import youtube
-import subprocess
 import io
-import random
-import requests
-import praw
-import logging
+import os
 import queue
+import random
+import re
+import subprocess
+import time
+
+import praw
+import pyshorteners
+import requests
+from simpleeval import simple_eval
+
+import youtube
+from wrap import VkWrap
 
 
 def isint(n):
@@ -38,7 +39,7 @@ def remove_escapes(s: str):
 
 class Handler:
 
-    def __init__(self, wrapper: VkWrap, safe_list, logger):
+    def __init__(self, wrapper: VkWrap, safe_list, logger, googlAPIkey):
         self.bot = wrapper
         self.safe_dict = {k.__name__: k for k in safe_list}
         self.nahui = queue.Queue()
@@ -46,7 +47,6 @@ class Handler:
         self.t = time.time()+60
         self.last_message = -1
         self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
-
         self.reddit = praw.Reddit(client_id='wG7Qwo-mAbkSoQ',
                                   client_secret='FUrav__HGF0e08Vv6CJBfk-bCrA',
                                   user_agent='Marvin')
@@ -54,11 +54,13 @@ class Handler:
         self.admins = [136776175]
         self.greetings = {165211652: ["Привет, Женя", 20],
                           445077792: ["[id445077792|Юра], иди нахуй", 20],
-                          182192214: ["[id182192214|Сентябрь] горит", 40]}
+                          182192214: ["[id182192214|Сентябрь] горит", 40],
+                          463718240: [str(self.bot.gen_sage(48))+"АНТИСРАМ", 10000000000]}
         func_list = [self.r, self.changelog, self.stop, self.update, self.help, self.ping, self.pong, self.flipcoin,
                      self.v, self.yt, self.quote]
         self.func_dict = {k.__name__: k for k in func_list}
         self.logger = logger
+        self.shortener = pyshorteners.Shortener('Google', api_key=googlAPIkey)
 
     def mess_bfs(self, m, s, f):
 
@@ -82,13 +84,13 @@ class Handler:
     def r(self, mess, ID):
         subreddit = mess['body'].split()[1]
         com = mess['body'].split()[0]+("" if len(mess['body'].split()) == 2 else " "+mess['body'].split()[2])
-        if com == "!r" or com == "!r hot":
+        if com == "r" or com == "r hot":
             subs = [k for k in self.reddit.subreddit(subreddit).hot()]
-        elif com == "!r new":
+        elif com == "r new":
             subs = [k for k in self.reddit.subreddit(subreddit).new()]
-        elif com == "!r rising":
+        elif com == "r rising":
             subs = [k for k in self.reddit.subreddit(subreddit).rising()]
-        elif com == "!r top":
+        elif com == "r top":
             subs = [k for k in self.reddit.subreddit(subreddit).top()]
         else:
             raise Exception("Improper format Provided: "+com)
@@ -98,17 +100,19 @@ class Handler:
             s = subs[i]
             nums.remove(i)
             if s.url[-4:] == ".jpg":
-                f = requests.get(s.url)._content
-                url = self.bot.get_photo_link()['upload_url']
-                file = open(str(hash(f)) + ".jpg", "wb")
-                file.write(f)
-                file.close()
-                r = requests.post(url=url, files={'photo': open(str(hash(f)) + ".jpg", "rb")}).json()
-                p = self.bot.save_photo(**r)
-                self.bot.send_attachment(ID,"" , "photo{0}_{1}".format(p['owner_id'], p['id']))
-                os.remove(str(hash(f)) + ".jpg")
-                if s.over_18:
-                    self.bot.send_message(ID, self.bot.gen_sage(48)+"NSFW: "+subreddit)
+                if s.over_18:# and ID != mess['user_id']:
+                    self.bot.send_message(ID, "NSFW: {0}, но для желающих ссылка: {1}".format(
+                        subreddit, (self.shortener.short(s.url) if len(s.url) > len('https://i.redd.it/oqnxnvhpts201.jpg')+2 else s.url)))
+                else:
+                    f = requests.get(s.url)._content
+                    url = self.bot.get_photo_link()['upload_url']
+                    file = open(str(hash(f)) + ".jpg", "wb")
+                    file.write(f)
+                    file.close()
+                    r = requests.post(url=url, files={'photo': open(str(hash(f)) + ".jpg", "rb")}).json()
+                    p = self.bot.save_photo(**r)
+                    os.remove(str(hash(f)) + ".jpg")
+                    self.bot.send_attachment(ID, "", "photo{0}_{1}".format(p['owner_id'], p['id']))
                 return
         raise Exception("No Pics")
 
@@ -118,7 +122,7 @@ class Handler:
 
     def stop(self, mess, ID):
         if mess['user_id'] in self.admins:
-            self.bot.send_message(ID, "--ок, ухажу--")
+            self.bot.send_message(ID, "ок, ухажу")
             subprocess.run("pkill python3", shell=1)
 
     def update(self, mess, ID):
@@ -127,7 +131,7 @@ class Handler:
             subprocess.run("pkill python3; git pull; nohup python3 main.py update {0} &".format(ID), shell=1)
 
     def help(self, mess, ID):
-        if mess['body'] == "!help":
+        if mess['body'] == "help":
             c = io.open("help/help", mode="r", encoding="UTF-8")
             self.bot.send_message(ID, c.read())
             return
@@ -137,7 +141,7 @@ class Handler:
                 self.bot.send_message(ID, c.read())
                 return
             except:
-                self.bot.send_message(ID, "--Такого файла помощи не существует--")
+                self.bot.send_message(ID, "Такого файла помощи не существует")
 
     def ping(self, mess, ID):
         self.bot.send_message(ID, "понг ({0} мс)".format(int(1000*(time.time()-mess['date']))))
@@ -150,7 +154,7 @@ class Handler:
 
     def v(self, mess, ID):
         try:
-            a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))
+            a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("v", ''))
             a.replace("&quot;", "\"")
             print(a)
             o = remove_escapes(str(simple_eval(a, functions=self.safe_dict)))
@@ -169,39 +173,39 @@ class Handler:
     def quote(self, mess, ID):
         if mess['user_id'] == 183179115:
             return
-        if mess['body'] == "!quote":
+        if mess['body'] == "quote":
             if "fwd_messages" in mess.keys():
                 s, f = self.mess_bfs(mess, 0, 0)
-                self.bot.send_message(ID, "--добавлено {0} сообщений, не добавлено {1} сообщений--".format(s, f - 1))
+                self.bot.send_message(ID, "Добавлено {0} сообщений, не добавлено {1} сообщений".format(s, f - 1))
             else:
                 if len(self.quote_lines):
                     self.bot.send_message(ID, random.choice(self.quote_lines))
                 else:
-                    self.bot.send_message(ID, "--Цитат пока что нет--")
+                    self.bot.send_message(ID, "Цитат пока что нет")
         if len(mess['body'].split()) > 1:  # Циатник
-            if mess['body'] == "!quote all" and mess['user_id'] == 136776175:
+            if mess['body'] == "quote all" and mess['user_id'] == 136776175:
                 le = 100
                 total = 0
                 s = 0
                 while le == 100:
-                    arr = self.bot.msg_search("!quote", 100, total)
+                    arr = self.bot.msg_search("quote", 100, total)
                     for m in arr:
                         total += 1
                         if "fwd_messages" in m.keys() and m['user_id'] != 183179115 and m['body'] == "!quote":
                             s1, f1 = self.mess_bfs(m, 0, 0)
                             s += s1
                     le = len(arr)
-                self.bot.send_message(ID, "--Добавлено {0} сообщений--".format(s))
+                self.bot.send_message(ID, "Добавлено {0} сообщений".format(s))
             elif isint(mess['body'].split()[1]):
                 n = int(mess['body'].split()[1])
                 if abs(n) < len(self.quote_lines):
                     self.bot.send_message(ID, self.quote_lines[n])
                 else:
-                    self.bot.send_message(ID, "--Столько цитат ещё не добавлено, пока что их {0}--".format(
+                    self.bot.send_message(ID, "Столько цитат ещё не добавлено, пока что их {0}".format(
                         len(self.quote_lines)))
-            elif mess['body'] == "!quote last":
+            elif mess['body'] == "quote last":
                 self.bot.send_message(ID, self.quote_lines[-1])
-            elif mess['body'] == "!quote get":
+            elif mess['body'] == "quote get":
                 url = self.bot.doc_get_url()
                 r = requests.post(url=url, files={'file': open("quotes.txt", 'rb')}).json()
                 file = self.bot.doc_save(r['file'])[0]
@@ -225,7 +229,12 @@ class Handler:
                                                          "PM",
                                                          self.bot.get_user(mess['user_id']),
                                                          mess['body']))
-        com = mess['body'].split()[0][1:]
+        if re.match(r"^[\\|\/|!]\w+", mess['body']) is not None:
+            com = mess['body'].split()[0][1:]
+            mess['body'] = mess['body'][1:]
+        else:
+            return
+
         if "[id{0}|".format(self.bot.me) in mess['body']:
             user = self.bot.get_user(mess['user_id'])
             self.bot.send_message(ID, "[id{0}|{1} {2}], отъебись блять".format(mess['user_id'],
@@ -236,7 +245,7 @@ class Handler:
                 f = self.func_dict[com]
                 f(mess, ID)
             except Exception as e:
-                self.bot.send_message(ID, "--error: {0}--".format(e.args))
+                self.bot.send_message(ID, "error: {0}".format(e.args))
                 raise e
         if mess['user_id'] in self.greetings.keys():
             self.greet(mess, ID)

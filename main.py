@@ -41,18 +41,19 @@ num_worker_threads = 4
 file = open("login.txt", "r")
 login = file.readline().replace('\n', '')
 password = file.readline().replace('\n', '')
+api_key = file.readline().replace('\n', '')
 file.close()
 
 marvin = VkWrap(login, password)
 
-# marvin.send_message(ID, "---Бот Запущен---")
+# marvin.send_message(ID, "Бот Запущен")
 
 safe_list = [math.acos, math.asin, math.atan, math.atan2, math.ceil, math.cos, math.cosh, math.degrees,
              math.exp, math.fabs, math.floor, math.fmod, math.frexp, math.hypot, math.ldexp, math.log, math.log10,
              math.modf, math.pow, math.radians, math.sin, math.sinh, math.sqrt, math.tan, math.tanh, random.randrange,
              int, str]
 
-handle = Handler(marvin, safe_list, logger)
+handle = Handler(marvin, safe_list, logger, api_key)
 
 q = queue.Queue()
 threads = []
