@@ -55,7 +55,7 @@ class Handler:
         self.greetings = {165211652: ["Привет, Женя", 20],
                           445077792: ["[id445077792|Юра], иди нахуй", 20],
                           182192214: ["[id182192214|Сентябрь] горит", 40]}
-        func_list = [self.aww, self.changelog, self.stop, self.update, self.help, self.ping, self.pong, self.flipcoin,
+        func_list = [self.r, self.changelog, self.stop, self.update, self.help, self.ping, self.pong, self.flipcoin,
                      self.v, self.yt, self.quote]
         self.func_dict = {k.__name__: k for k in func_list}
         self.logger = logger
@@ -79,10 +79,24 @@ class Handler:
             f += 1
         return s, f
 
-    def aww(self, mess, ID):
-        subs = [k for k in self.reddit.subreddit("aww").hot()]
-        while 1:
-            s = random.choice(subs)
+    def r(self, mess, ID):
+        subreddit = mess['body'].split()[1]
+        com = mess['body'].split()[0]+("" if len(mess['body'].split()) == 2 else " "+mess['body'].split()[2])
+        if com == "!r" or com == "!r hot":
+            subs = [k for k in self.reddit.subreddit(subreddit).hot()]
+        elif com == "!r new":
+            subs = [k for k in self.reddit.subreddit(subreddit).new()]
+        elif com == "!r rising":
+            subs = [k for k in self.reddit.subreddit(subreddit).rising()]
+        elif com == "!r top":
+            subs = [k for k in self.reddit.subreddit(subreddit).top()]
+        else:
+            raise Exception("Improper format Provided: "+com)
+        nums = [i for i in range(len(subs))]
+        while len(nums):
+            i = random.choice(nums)
+            s = subs[i]
+            nums.remove(i)
             if s.url[-4:] == ".jpg":
                 f = requests.get(s.url)._content
                 url = self.bot.get_photo_link()['upload_url']
@@ -93,7 +107,10 @@ class Handler:
                 p = self.bot.save_photo(**r)
                 self.bot.send_attachment(ID,"" , "photo{0}_{1}".format(p['owner_id'], p['id']))
                 os.remove(str(hash(f)) + ".jpg")
+                if s.over_18:
+                    self.bot.send_message(ID, self.bot.gen_sage(48)+"NSFW: "+subreddit)
                 return
+        raise Exception("No Pics")
 
     def changelog(self, mess, ID):
         c = io.open("changelog", mode="r", encoding="UTF-8")
@@ -134,6 +151,7 @@ class Handler:
     def v(self, mess, ID):
         try:
             a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))
+            a.replace("&quot;", "\"")
             print(a)
             o = remove_escapes(str(simple_eval(a, functions=self.safe_dict)))
             if len(o.split()) == 0 or len(o) == 0:
@@ -193,6 +211,7 @@ class Handler:
     def greet(self, mess, ID):
         m = self.bot.send_message(ID, self.greetings[mess['user_id']][0])
         self.nahui.put([m, time.time()+self.greetings[mess['user_id']][1]])
+
     def handle_message(self, mess):
         if 'chat_id' in mess.keys():
             ID = mess['chat_id']
@@ -207,9 +226,18 @@ class Handler:
                                                          self.bot.get_user(mess['user_id']),
                                                          mess['body']))
         com = mess['body'].split()[0][1:]
+        if "[id{0}|".format(self.bot.me) in mess['body']:
+            user = self.bot.get_user(mess['user_id'])
+            self.bot.send_message(ID, "[id{0}|{1} {2}], отъебись блять".format(mess['user_id'],
+                                                                           user['first_name'],
+                                                                           user['last_name']))
         if com in self.func_dict:
-            f = self.func_dict[com]
-            f(mess, ID)
+            try:
+                f = self.func_dict[com]
+                f(mess, ID)
+            except Exception as e:
+                self.bot.send_message(ID, "--error--")
+                raise e
         if mess['user_id'] in self.greetings.keys():
             self.greet(mess, ID)
 
