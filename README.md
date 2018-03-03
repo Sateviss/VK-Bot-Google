@@ -6,9 +6,9 @@
 * add 3 lines
     * login for vk
     * password
-    * google shortener api token (may me ###)
+    * google shortener api token (may be ###)
 
-```help.txt``` contains available commands (in russian)
+```help/help``` contains available commands (in russian)
 
 #### Author: Eugene Pisarchik
 
