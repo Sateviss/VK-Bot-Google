@@ -7,7 +7,7 @@ import subprocess
 import requests
 
 
-def down_and_send(v_id, chat_id, bot):
+def down_and_send(v_id, chat_id, bot: VkWrap):
     try:
         bot.send_message(chat_id, "--Запрос принят, ожидайте--")
         out = subprocess.run(
@@ -23,8 +23,8 @@ def down_and_send(v_id, chat_id, bot):
         r = requests.post(url=resp['upload_url'], files={'file': f})
         bot.send_attachment(chat_id, "", "video" + str(bot.me) + "_" + str(r.json()['video_id']))
         subprocess.run("rm -rf Download/{}".format(quote(v_id)), shell=True)
-        return "--done--"
-    except:
+        return "done"
+    except Exception as e:
         if out.find(b'File is larger than max file size'):
             try:
                 subprocess.run("rm -rf Download/{}".format(quote(v_id)), shell=True)
@@ -37,11 +37,11 @@ def down_and_send(v_id, chat_id, bot):
                 f = open("Download/" + v_id + "/video.mp4", 'rb')
                 r = requests.post(url=resp['upload_url']
                                   , files={'file': f})
-                bot.send_attachment(chat_id, "", "video470444116_" + str(r.json()['video_id']))
+                bot.send_attachment(chat_id, "", "video{0}_{1}".format(r.json()['owner_id'], r.json()['id']))
                 subprocess.run("rm -rf Download/{}".format(quote(v_id)), shell=True)
-                return "--done--"
-            except:
+                return "done"
+            except Exception as e:
                 subprocess.run("rm -rf Download/{}".format(quote(v_id)), shell=True)
-                return "--error--"
+                raise e
         subprocess.run("rm -rf Download/{}".format(quote(v_id)), shell=True)
-        return "--error--"
+        raise e
