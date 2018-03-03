@@ -85,7 +85,7 @@ class Handler:
                      self.v, self.yt, self.quote, self.stats]
         self.func_dict = {k.__name__: k for k in func_list}
         self.func_usage = {k.__name__: 0 for k in func_list}
-        self.greet_usage = {k.__name__: 0 for k in self.greetings.keys()}
+        self.greet_usage = {k: 0 for k in self.greetings.keys()}
         self.logger = logger
         self.shortener = pyshorteners.Shortener('Google', api_key=google_api_key)
         self.start_time = time.time()
