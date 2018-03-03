@@ -1,79 +1,100 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import re
 import time
-import sys
-import wrap
 import math
+from threading import Thread
 
-file = open("login.txt", "r")
-login = file.readline().replace('\n', '')
-password = file.readline().replace('\n', '')
-file.close()
+import os
 
-wrap.log_in(login, password)
+from wrap import VkWrap
+from handler import Handler
+import queue
+import random
+import sys
+import logging
+import configparser
 
-print("...working")
-#wrap.send_message(ID, "---Бот Запущен---")
-last_messages = {}
-last_message = -1
-nahui = []
-me = wrap.get_user()['uid']
+num_worker_threads = 4
+logger = logging.Logger("VK-Bot")
+
 
 safe_list = [math.acos, math.asin, math.atan, math.atan2, math.ceil, math.cos, math.cosh, math.degrees,
              math.exp, math.fabs, math.floor, math.fmod, math.frexp, math.hypot, math.ldexp, math.log, math.log10,
-             math.modf, math.pow, math.radians, math.sin, math.sinh, math.sqrt, math.tan, math.tanh]
+             math.modf, math.pow, math.radians, math.sin, math.sinh, math.sqrt, math.tan, math.tanh, random.randrange,
+             int, str]
 
-safe_dict = {k.__name__: k for k in safe_list}
+if not os.path.exists("config.ini"):
+    print("config.ini does not exist, you must create one\n"
+          "You can base your config on example_config.ini")
+    sys.exit(1)
 
+try:
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+    app_id = config['GENERAL']['App ID']
+    if config['GENERAL'].getboolean('Use token'):
+        marvin = VkWrap(config['VK TOKEN']['Access token'])
+    else:
+        marvin = VkWrap(config['VK LOGIN INFO']['Login'], config['VK LOGIN INFO']['Password'])
+    google_api_key = config['API KEYS'].get('Google URL shortener API key', 'kek')
+    handle = Handler(marvin, safe_list, logger, google_api_key)
+except Exception as e:
+    print("Something went wrong with config.ini\n"
+          "Check if you have set it up correctly\n\n"
+          "Here's the error: "+str(e.args))
+    sys.exit(1)
+
+# marvin.send_message(ID, "Бот Запущен")
+
+q = queue.Queue()
+threads = []
+
+
+def worker():
+    while True:
+        item = q.get()
+        if item is None:
+            break
+        func = item[0]
+        try:
+            func(item[1])
+        except Exception as e:
+            print(e)
+            logger.exception('Got exception on worker Thread')
+        finally:
+            q.task_done()
+
+
+def deleter(hand: Handler, bot: VkWrap):
+    while True:
+        time.sleep(0.1)
+        item = hand.nahui.get()
+        if item[1] < time.time():
+            bot.delete_message(item[0])
+        else:
+            hand.nahui.put(item)
+
+
+t = Thread(target=deleter, args=(handle, marvin))
+t.start()
+threads.append(t)
+
+for i in range(num_worker_threads):
+    t = Thread(target=worker)
+    t.start()
+    threads.append(t)
+
+print("...working...")
+
+a = sys.argv
+if len(a) == 3:
+    if a[1] == "update":
+        marvin.send_message(a[2], "обновление завершено")
+        handle.changelog(mess=None, ID=a[2])
 
 while 1:
-    mess = wrap.get_inbox()
-    i = 0
-    while i < len(nahui):
-        if nahui[i][1] < time.time():
-            wrap.delete_message(nahui[i][0])
-            nahui.pop(i)
-            continue
-        i += 1
-
-    if last_message != mess['mid']:
-        ID = str(mess['chat_id'] if mess.keys().__contains__('chat_id') else mess['uid'])
-        if not last_messages.keys().__contains__(ID):
-            last_messages.update({ID: mess['mid']})
-        else:
-            last_message = last_messages[ID]
-        if mess['body'] == "!help":
-            wrap.send_message(ID, "Список комманд:\n"
-                                  "\t!help - вывести этот список\n"
-                                  "\t!ping - понг\n"
-                                  "\t!stop - выключить бота (только для автора бота)\n"
-                                  "\t!v - вычислить значение выражения (!help v чтобы вывести список команд)\n")
-        if mess['body'] == "!help v":
-            safe_dict = [k.__name__ for k in safe_list]
-            wrap.send_message(ID, "Список команд, разрешенных в !v:\n"+str(safe_dict))
-        if mess['uid'] == 136776175 and mess['body'] == "!stop":
-            wrap.send_message(ID, "--ок, ухажу--")
-            sys.exit(0)
-        if mess['body'] == "!ping":
-            wrap.send_message(ID, "понг")
-        if mess['body'][:2] == "!v":
-            try:
-                safe_dict = {k.__name__: k for k in safe_list}
-                a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("!v", ''))
-                print(a)
-                wrap.send_message(ID, "= "+str(eval(a, {'e': math.e, 'pi': math.pi}, safe_dict)))
-            except:
-                wrap.send_message(ID, "-error-")
-        if mess['uid'] != me:
-            user = wrap.get_user(mess['uid'])
-            print(time.strftime("%d.%m.%y - %H:%M:%S "), user['first_name'], user['last_name']+" :"+mess['body'])
-            last_message = mess['mid']
-            if mess['uid'] == 445077792:
-                nahui.append([wrap.send_message(ID, "Юра, иди нахуй"), time.time() + 10])
-                print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Юра нахуй")
-            if (mess['uid'] == 461460001 or mess['uid'] == 463718240 or mess['uid'] == 465167934) and mess['body'] == '':
-                wrap.send_message(ID, wrap.gen_message(49))
-                wrap.send_message(ID, "АНТИПОРН")
-                print(time.strftime("%d.%m.%y - %H:%M:%S ", time.localtime()), "Антипорн!")
-
+    q.join()
+    inbox = marvin.get_inbox_lp()
+    for m in inbox:
+        q.put((handle.handle_message, m))
