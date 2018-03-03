@@ -85,6 +85,7 @@ class Handler:
                      self.v, self.yt, self.quote, self.stats]
         self.func_dict = {k.__name__: k for k in func_list}
         self.func_usage = {k.__name__: 0 for k in func_list}
+        self.greet_usage = {k.__name__: 0 for k in self.greetings.keys()}
         self.logger = logger
         self.shortener = pyshorteners.Shortener('Google', api_key=google_api_key)
         self.start_time = time.time()
@@ -263,13 +264,26 @@ class Handler:
         o += "\nПользователи с правами администратора:\n"
         for a in self.admins:
             o += "• [id{0}|{1} {2}]\n".format(a, self.bot.get_user(a)['first_name'], self.bot.get_user(a)['last_name'])
-        o += "\nОбработаные запросы:\n"
+        o += "\nОбработанные запросы:\n"
         total = 0
         for f in self.func_usage.keys():
             if self.func_usage[f]:
                 o += "• {0}: {1}\n".format(f, self.func_usage[f])
                 total += self.func_usage[f]
         o += "Всего: " + str(total) + "\n"
+
+        o += "\nПриветствия:\n"
+        total = 0
+        for f in self.greet_usage.keys():
+            if self.greet_usage[f]:
+                o += "• [id{0}|{1} {2}]: {3}\n".format(f,
+                    self.bot.get_user(f)['first_name'],
+                    self.bot.get_user(f)['last_name'],
+                    self.greet_usage[f]
+                )
+                total += self.greet_usage[f]
+        o += "Всего: " + str(total) + "\n"
+
         self.bot.send_message(ID, o)
 
     def handle_message(self, mess):
@@ -287,6 +301,7 @@ class Handler:
                                                          mess['body']))
         if mess['user_id'] in self.greetings.keys():
             self.greet(mess, ID)
+            self.greet_usage[mess['user_id']] += 1
         if message_regex.match(mess['body']):
             com = mess['body'].split()[0][1:]
             mess['body'] = mess['body'][1:]
