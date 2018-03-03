@@ -208,6 +208,8 @@ class Handler:
         self.bot.send_message(ID, youtube.down_and_send(link, ID, self.bot))
 
     def quote(self, mess, ID):
+        mess = self.bot.get_message(mess['id'])
+        mess['body'] = mess['body'][1:]
         if mess['user_id'] == 183179115:
             return
         if mess['body'] == "quote":

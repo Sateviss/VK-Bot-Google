@@ -184,6 +184,10 @@ class VkWrap:
                 i += 1
 
     @delay_dec
+    def get_message(self, id):
+        return self.api.messages.getById(message_ids=id)['items'][0]
+
+    @delay_dec
     def get_inbox_lp(self):
         lps = self.api.messages.getLongPollServer(lp_version=2)
         r = requests.post(
