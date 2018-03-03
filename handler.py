@@ -17,26 +17,45 @@ from simpleeval import simple_eval
 import youtube
 from wrap import VkWrap
 
-reddit_img_server = 'https://i.redd.it/oqnxnvhpts201.jpg'
+reddit_img_url_len = len("https://i.redd.it/oqnxnvhpts201.jpg") + 2
+
+message_regex = re.compile(r'^[\\/!]\w+')
 
 
-def isint(n):
-    try:
-        int(n)
-        return True
-    except:
-        return False
+def isint(n: str):
+    return n.isdigit()
 
 
-def remove_escapes(s: str):
+def remove_escapes(message: str):
+    """ Replace all escape characters with spaces """
     escapes = ['\a', '\b', '\f', '\r', '\v', '\0']
-    o = []
-    for c in s:
-        if c in escapes:
-            o.append(" ")
-        else:
-            o.append(c)
-    return "".join(o)
+    output = []
+
+    for char in message:
+        output.append(char if char not in escapes else ' ')
+
+    return ''.join(output)
+
+
+def gen_factorization(number: int):
+    """ Number factorization from 2 to N """
+    output = ''
+
+    for i in range(2, number + 1):
+        output += str(i) + ": "
+        factors = []
+        divisor = 2
+
+        while i > 1:
+            if i % divisor == 0:
+                i /= divisor
+                factors.append(divisor)
+                divisor = 1
+            divisor += 1
+
+        output += str(factors) + '\n'
+
+    return output
 
 
 class Handler:
@@ -58,7 +77,7 @@ class Handler:
         self.greetings = {165211652: ["Привет, Женя", 20],
                           445077792: ["[id445077792|Юра], иди нахуй", 20],
                           182192214: ["[id182192214|Сентябрь] горит", 40],
-                          463718240: [str(self.bot.gen_sage(48))+"АНТИСРАМ", 10000000000]}
+                          463718240: [str(gen_factorization(48)) + "АНТИСРАМ", 10000000000]}
         func_list = [self.r, self.changelog, self.stop, self.update, self.help, self.ping, self.pong, self.flipcoin,
                      self.v, self.yt, self.quote]
         self.func_dict = {k.__name__: k for k in func_list}
@@ -105,7 +124,7 @@ class Handler:
             if s.url[-4:] == ".jpg":
                 if s.over_18:  # and ID != mess['user_id']:
                     self.bot.send_message(ID, "NSFW: {0}, но для желающих ссылка: {1}".format(
-                        subreddit, (self.shortener.short(s.url) if len(s.url) > len(reddit_img_server) + 2 else s.url)))
+                        subreddit, (self.shortener.short(s.url) if len(s.url) > reddit_img_url_len else s.url)))
                 else:
                     f = requests.get(s.url).content
                     url = self.bot.get_photo_link()['upload_url']
@@ -232,7 +251,7 @@ class Handler:
                                                          "PM",
                                                          self.bot.get_user(mess['user_id']),
                                                          mess['body']))
-        if re.match(r'^[\\/!]\w+', mess['body']) is not None:
+        if message_regex.match(mess['body']):
             com = mess['body'].split()[0][1:]
             mess['body'] = mess['body'][1:]
         else:
