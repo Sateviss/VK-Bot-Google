@@ -8,6 +8,7 @@ import requests
 
 
 def down_and_send(v_id, chat_id, bot: VkWrap):
+    global out
     try:
         bot.send_message(chat_id, "Запрос принят, ожидайте")
         out = subprocess.run(
@@ -35,8 +36,7 @@ def down_and_send(v_id, chat_id, bot: VkWrap):
                 js = json.load(open("Download/" + v_id + "/video.info.json"))
                 resp = bot.get_video_link(js['title'], js['description'])
                 f = open("Download/" + v_id + "/video.mp4", 'rb')
-                r = requests.post(url=resp['upload_url']
-                                  , files={'file': f})
+                r = requests.post(url=resp['upload_url'], files={'file': f})
                 bot.send_attachment(chat_id, "", "video{0}_{1}".format(r.json()['owner_id'], r.json()['video_id']))
                 subprocess.run("rm -rf Download/{}".format(quote(v_id)), shell=True)
                 return "done"

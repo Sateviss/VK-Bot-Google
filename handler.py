@@ -3,12 +3,12 @@
 
 import io
 import os
+import platform
 import queue
 import random
 import re
 import subprocess
 import time
-import platform
 
 import praw
 import pyshorteners
@@ -61,12 +61,12 @@ def gen_factorization(number: int):
 
 class Handler:
 
-    def __init__(self, wrapper: VkWrap, safe_list, logger, googlAPIkey):
+    def __init__(self, wrapper: VkWrap, safe_list, logger, google_api_key):
         self.bot = wrapper
         self.safe_dict = {k.__name__: k for k in safe_list}
         self.nahui = queue.Queue()
         self.me = self.bot.me
-        self.t = time.time()+60
+        self.t = time.time() + 60
         self.last_message = -1
         if not os.path.exists("quotes.txt"):
             f = open("quotes.txt", "wb")
@@ -86,20 +86,20 @@ class Handler:
         self.func_dict = {k.__name__: k for k in func_list}
         self.func_usage = {k.__name__: 0 for k in func_list}
         self.logger = logger
-        self.shortener = pyshorteners.Shortener('Google', api_key=googlAPIkey)
+        self.shortener = pyshorteners.Shortener('Google', api_key=google_api_key)
         self.start_time = time.time()
 
     def mess_bfs(self, m, s, f):
 
         def add_quote(quote):
             self.quote_lines.append(quote)
-            with io.open("quotes.txt", mode="a", encoding="UTF-8") as f:
-                f.write(quote)
+            with io.open("quotes.txt", mode="a", encoding="UTF-8") as quotes_file:
+                quotes_file.write(quote)
 
         if "fwd_messages" in m.keys():
             for fwd in m['fwd_messages']:
                 s, f = self.mess_bfs(fwd, s, f)
-        pattern = re.compile(re.escape(m['body']+"<br>© Führer ")+"\(\d+\)\n")
+        pattern = re.compile(re.escape(m['body'] + "<br>© Führer ") + "\(\d+\)\n")
         filt = [i for i in filter(pattern.match, self.quote_lines)]
         if not len(filt) and m['user_id'] == 183179115 and m['body'] != "":
             add_quote(m['body'] + "<br>© Führer ({0})\n".format(len(self.quote_lines)))
@@ -110,7 +110,7 @@ class Handler:
 
     def r(self, mess, ID):
         subreddit = mess['body'].split()[1]
-        com = mess['body'].split()[0]+("" if len(mess['body'].split()) == 2 else " "+mess['body'].split()[2])
+        com = mess['body'].split()[0] + ("" if len(mess['body'].split()) == 2 else " " + mess['body'].split()[2])
         if com == "r" or com == "r hot":
             subs = [k for k in self.reddit.subreddit(subreddit).hot()]
         elif com == "r new":
@@ -120,7 +120,7 @@ class Handler:
         elif com == "r top":
             subs = [k for k in self.reddit.subreddit(subreddit).top()]
         else:
-            raise Exception("Improper format Provided: "+com)
+            raise Exception("Improper format Provided: " + com)
         nums = [i for i in range(len(subs))]
         while len(nums):
             i = random.choice(nums)
@@ -129,7 +129,7 @@ class Handler:
             try:
                 im_url = s.preview['images'][0]['source']['url']
                 print(im_url)
-            except Exception as e:
+            except Exception:
                 continue
             if ".jpg" in im_url:
                 if s.over_18:  # and ID != mess['user_id']:
@@ -176,17 +176,17 @@ class Handler:
             return
         else:
             try:
-                c = io.open("help/"+mess['body'].split()[1], mode="r", encoding="UTF-8")
+                c = io.open("help/" + mess['body'].split()[1], mode="r", encoding="UTF-8")
                 self.bot.send_message(ID, c.read())
                 return
             except:
                 self.bot.send_message(ID, "Такого файла помощи не существует")
 
     def ping(self, mess, ID):
-        self.bot.send_message(ID, "понг ({0} мс)".format(int(1000*(time.time()-mess['date']))))
+        self.bot.send_message(ID, "понг ({0} мс)".format(int(1000 * (time.time() - mess['date']))))
 
     def pong(self, mess, ID):
-            self.bot.send_message(ID, "пинг")
+        self.bot.send_message(ID, "пинг")
 
     def flipcoin(self, mess, ID):
         self.bot.send_message(ID, random.choice(['орёл', 'решка']))
@@ -255,21 +255,21 @@ class Handler:
 
     def greet(self, mess, ID):
         m = self.bot.send_message(ID, self.greetings[mess['user_id']][0])
-        self.nahui.put([m, time.time()+self.greetings[mess['user_id']][1]])
+        self.nahui.put([m, time.time() + self.greetings[mess['user_id']][1]])
 
     def stats(self, mess, ID):
         o = ""
-        o += "\nВремя работы: "+time.strftime("%H:%M:%S", time.gmtime(time.time()-self.start_time))+"\n"
+        o += "\nВремя работы: " + time.strftime("%H:%M:%S", time.gmtime(time.time() - self.start_time)) + "\n"
         o += "\nПользователи с правами администратора:\n"
         for a in self.admins:
-            o+="• [id{0}|{1} {2}]\n".format(a, self.bot.get_user(a)['first_name'], self.bot.get_user(a)['last_name'])
+            o += "• [id{0}|{1} {2}]\n".format(a, self.bot.get_user(a)['first_name'], self.bot.get_user(a)['last_name'])
         o += "\nОбработаные запросы:\n"
         total = 0
         for f in self.func_usage.keys():
             if self.func_usage[f]:
                 o += "• {0}: {1}\n".format(f, self.func_usage[f])
                 total += self.func_usage[f]
-        o += "Всего: "+str(total)+"\n"
+        o += "Всего: " + str(total) + "\n"
         self.bot.send_message(ID, o)
 
     def handle_message(self, mess):
@@ -294,8 +294,8 @@ class Handler:
         if "[id{0}|".format(self.bot.me) in mess['body']:
             user = self.bot.get_user(mess['user_id'])
             self.bot.send_message(ID, "[id{0}|{1} {2}], отъебись блять".format(mess['user_id'],
-                                                                           user['first_name'],
-                                                                           user['last_name']))
+                                                                               user['first_name'],
+                                                                               user['last_name']))
         if com in self.func_dict:
             try:
                 self.func_usage[com] += 1
@@ -306,4 +306,3 @@ class Handler:
                 raise e
         if mess['user_id'] in self.greetings.keys():
             self.greet(mess, ID)
-

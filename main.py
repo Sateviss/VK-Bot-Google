@@ -34,9 +34,9 @@ try:
     config.read("config.ini")
     app_id = config['GENERAL']['App ID']
     if config['GENERAL'].getboolean('Use token'):
-        marvin = VkWrap(config['VK TOKEN']['Access token'])
+        marvin = VkWrap.with_key(config['VK TOKEN']['Access token'])
     else:
-        marvin = VkWrap(config['VK LOGIN INFO']['Login'], config['VK LOGIN INFO']['Password'])
+        marvin = VkWrap.with_login(config['VK LOGIN INFO']['Login'], config['VK LOGIN INFO']['Password'])
     google_api_key = config['API KEYS'].get('Google URL shortener API key', 'kek')
     handle = Handler(marvin, safe_list, logger, google_api_key)
 except Exception as e:
@@ -59,8 +59,8 @@ def worker():
         func = item[0]
         try:
             func(item[1])
-        except Exception as e:
-            print(e)
+        except Exception as ex:
+            print(ex)
             logger.exception('Got exception on worker Thread')
         finally:
             q.task_done()
@@ -93,7 +93,7 @@ if len(a) == 3:
         marvin.send_message(a[2], "обновление завершено")
         handle.changelog(mess=None, ID=a[2])
 
-while 1:
+while True:
     q.join()
     inbox = marvin.get_inbox_lp()
     for m in inbox:

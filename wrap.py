@@ -7,6 +7,12 @@ import time
 import requests
 import vk_requests
 
+APP_ID = 6386090
+
+API_VERSION = "5.73"
+
+SCOPE = 140509183
+
 vk_message_maxlen = 4000
 
 
@@ -27,30 +33,30 @@ def delay_dec(func):
 
 class VkWrap:
 
-    def __init__(self, login, password):
-        self.api = self.log_in(login, password)
+    def __init__(self, api):
+        self.api = api
         self.user_dict = {}
         self.me = self.get_user()['id']
 
-    def __init__(self, key):
-        self.api = self.key_log_in(key)
-        self.user_dict = {}
-        self.me = self.get_user()['id']
+    @staticmethod
+    def with_key(key):
+        api = vk_requests.create_api(
+            service_token=key,
+            api_version=API_VERSION,
+            scope=SCOPE
+        )
+        return VkWrap(api)
 
-    @delay_dec
-    def key_log_in(self, key):
-        return vk_requests.create_api(service_token=key,
-                                      api_version="5.73",
-                                      scope=140509183)
-
-    @delay_dec
-    def log_in(self, login, password):
-
-        return vk_requests.create_api(app_id=6386090,
-                                      login=login,
-                                      password=password,
-                                      scope=140509183,
-                                      api_version="5.73")
+    @staticmethod
+    def with_login(login, password):
+        api = vk_requests.create_api(
+            app_id=APP_ID,
+            login=login,
+            password=password,
+            scope=SCOPE,
+            api_version=API_VERSION
+        )
+        return VkWrap(api)
 
     @delay_dec
     def doc_get_url(self):
@@ -144,8 +150,8 @@ class VkWrap:
         return u
 
     @delay_dec
-    def msg_search(self, text, c, o):
-        a = self.api.messages.search(q=text, count=c, offset=o)['items']
+    def msg_search(self, text, count, offset):
+        a = self.api.messages.search(q=text, count=count, offset=offset)['items']
         return a
 
     @delay_dec
@@ -162,12 +168,12 @@ class VkWrap:
         return self.api.photos.saveMessagesPhoto(**kwargs)[0]
 
     @delay_dec
-    def get_friend(self, u_id):
-        return self.api.friends.get(user_id=u_id)
+    def get_friend(self, user_id):
+        return self.api.friends.get(user_id=user_id)
 
     @delay_dec
-    def delete_video(self, v_id):
-        return self.api.video.delete(video_id=v_id)
+    def delete_video(self, video_id):
+        return self.api.video.delete(video_id=video_id)
 
     @delay_dec
     def get_chat(self, chat_id):
@@ -184,8 +190,8 @@ class VkWrap:
                 i += 1
 
     @delay_dec
-    def get_message(self, id):
-        return self.api.messages.getById(message_ids=id)['items'][0]
+    def get_message(self, message_id):
+        return self.api.messages.getById(message_ids=message_id)['items'][0]
 
     @delay_dec
     def get_inbox_lp(self):
