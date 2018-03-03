@@ -38,8 +38,8 @@ class VkWrap:
         return vk_requests.create_api(app_id=6386090,
                                       login=login,
                                       password=password,
-                                      scope=268435455,
-                                      api_version="5.72")
+                                      scope=140509183,
+                                      api_version="5.73")
 
     @delay_dec
     def doc_get_url(self):
