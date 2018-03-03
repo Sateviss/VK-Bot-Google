@@ -8,6 +8,7 @@ import random
 import re
 import subprocess
 import time
+import platform
 
 import praw
 import pyshorteners
@@ -17,24 +18,45 @@ from simpleeval import simple_eval
 import youtube
 from wrap import VkWrap
 
+reddit_img_url_len = len("https://i.redd.it/oqnxnvhpts201.jpg") + 2
 
-def isint(n):
-    try:
-        int(n)
-        return True
-    except:
-        return False
+message_regex = re.compile(r'^[\\/!]\w+')
 
 
-def remove_escapes(s: str):
+def isint(n: str):
+    return n.isdigit()
+
+
+def remove_escapes(message: str):
+    """ Replace all escape characters with spaces """
     escapes = ['\a', '\b', '\f', '\r', '\v', '\0']
-    o = []
-    for c in s:
-        if c in escapes:
-            o.append(" ")
-        else:
-            o.append(c)
-    return "".join(o)
+    output = []
+
+    for char in message:
+        output.append(char if char not in escapes else ' ')
+
+    return ''.join(output)
+
+
+def gen_factorization(number: int):
+    """ Number factorization from 2 to N """
+    output = ''
+
+    for i in range(2, number + 1):
+        output += str(i) + ": "
+        factors = []
+        divisor = 2
+
+        while i > 1:
+            if i % divisor == 0:
+                i /= divisor
+                factors.append(divisor)
+                divisor = 1
+            divisor += 1
+
+        output += str(factors) + '\n'
+
+    return output
 
 
 class Handler:
@@ -46,16 +68,17 @@ class Handler:
         self.me = self.bot.me
         self.t = time.time()+60
         self.last_message = -1
-        self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
+        if os.path.exists("quotes.txt"):
+            self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
         self.reddit = praw.Reddit(client_id='wG7Qwo-mAbkSoQ',
                                   client_secret='FUrav__HGF0e08Vv6CJBfk-bCrA',
                                   user_agent='Marvin')
 
-        self.admins = [136776175]
-        self.greetings = {165211652: ["Привет, Женя", 20],
+        self.admins = [136776175, 118781407]  # Eugene and Dmitry
+        self.greetings = {165211652: ["Привет, [id165211652|Женя]", 20],
                           445077792: ["[id445077792|Юра], иди нахуй", 20],
                           182192214: ["[id182192214|Сентябрь] горит", 40],
-                          463718240: [str(self.bot.gen_sage(48))+"АНТИСРАМ", 10000000000]}
+                          463718240: [str(gen_factorization(48)) + "АНТИСРАМ", 10000000000]}
         func_list = [self.r, self.changelog, self.stop, self.update, self.help, self.ping, self.pong, self.flipcoin,
                      self.v, self.yt, self.quote]
         self.func_dict = {k.__name__: k for k in func_list}
@@ -100,11 +123,11 @@ class Handler:
             s = subs[i]
             nums.remove(i)
             if s.url[-4:] == ".jpg":
-                if s.over_18:# and ID != mess['user_id']:
+                if s.over_18:  # and ID != mess['user_id']:
                     self.bot.send_message(ID, "NSFW: {0}, но для желающих ссылка: {1}".format(
-                        subreddit, (self.shortener.short(s.url) if len(s.url) > len('https://i.redd.it/oqnxnvhpts201.jpg')+2 else s.url)))
+                        subreddit, (self.shortener.short(s.url) if len(s.url) > reddit_img_url_len else s.url)))
                 else:
-                    f = requests.get(s.url)._content
+                    f = requests.get(s.url).content
                     url = self.bot.get_photo_link()['upload_url']
                     file = open(str(hash(f)) + ".jpg", "wb")
                     file.write(f)
@@ -123,12 +146,19 @@ class Handler:
     def stop(self, mess, ID):
         if mess['user_id'] in self.admins:
             self.bot.send_message(ID, "ок, ухажу")
-            subprocess.run("pkill python3", shell=1)
+            if platform.system() == "Windows":
+                subprocess.run("taskkill /f /im python.exe", shell=True)
+            subprocess.run("pkill python3", shell=True)
 
     def update(self, mess, ID):
         if mess['user_id'] in self.admins:
             self.bot.send_message(ID, "-принято, обновляюсь-")
-            subprocess.run("pkill python3; git pull; nohup python3 main.py update {0} &".format(ID), shell=1)
+            if "Windows" == platform.system():
+                subprocess.run(
+                    args="taskkill /f /im python.exe && git pull && start python.exe main.py update {0}".format(ID),
+                    shell=True
+                )
+            subprocess.run("pkill python3; git pull; nohup python3 main.py update {0} &".format(ID), shell=True)
 
     def help(self, mess, ID):
         if mess['body'] == "help":
@@ -229,7 +259,7 @@ class Handler:
                                                          "PM",
                                                          self.bot.get_user(mess['user_id']),
                                                          mess['body']))
-        if re.match(r"^[\\|\/|!]\w+", mess['body']) is not None:
+        if message_regex.match(mess['body']):
             com = mess['body'].split()[0][1:]
             mess['body'] = mess['body'][1:]
         else:

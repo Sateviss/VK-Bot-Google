@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import vk_requests
-import time
-import sys
-import requests
 import pprint
+import time
+
+import requests
+import vk_requests
+
+vk_message_maxlen = 4000
 
 
 def delay_dec(func):
@@ -19,6 +21,7 @@ def delay_dec(func):
                     raise e
                 time.sleep(delay)
                 delay *= 2
+
     return func_wrapper
 
 
@@ -61,23 +64,24 @@ class VkWrap:
         else:
             return self.api.messages.get(count=200, last_message_id=lm)['items']
 
-
     @delay_dec
     def send_message(self, c_id, text):
         if int(c_id) > 100000:
             if self.get_user(c_id)['can_write_private_message'] == 0:
                 return "err"
 
-        if len(text) < 4000:
+        if len(text) < vk_message_maxlen:
             if int(c_id) > 100000:
                 m = self.api.messages.send(user_id=c_id, message=text)
             else:
                 m = self.api.messages.send(chat_id=c_id, message=text)
         else:
             if int(c_id) > 100000:
-                m = self.api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
+                m = self.api.messages.send(user_id=c_id,
+                                           message="Очень длинное сообщение, которое начинается на " + text[:200])
             else:
-                m = self.api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200])
+                m = self.api.messages.send(chat_id=c_id,
+                                           message="Очень длинное сообщение, которое начинается на " + text[:200])
         return m
 
     @delay_dec
@@ -85,18 +89,20 @@ class VkWrap:
         if int(c_id) > 100000:
             if self.get_user(c_id)['can_write_private_message'] == 0:
                 return "err"
-        if len(text) < 4000:
+        if len(text) < vk_message_maxlen:
             if int(c_id) > 100000:
                 m = self.api.messages.send(user_id=c_id, message=text, attachment=att)
             else:
                 m = self.api.messages.send(chat_id=c_id, message=text, attachment=att)
         else:
             if int(c_id) > 100000:
-                m = self.api.messages.send(user_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200]
-                                           , attachment=att)
+                m = self.api.messages.send(user_id=c_id,
+                                           message="Очень длинное сообщение, которое начинается на " + text[:200],
+                                           attachment=att)
             else:
-                m = self.api.messages.send(chat_id=c_id, message="Очень длинное сообщение, которое начинается на "+text[:200]
-                                           , attachment=att)
+                m = self.api.messages.send(chat_id=c_id,
+                                           message="Очень длинное сообщение, которое начинается на " + text[:200],
+                                           attachment=att)
         return m
 
     @delay_dec
@@ -109,18 +115,18 @@ class VkWrap:
             if u_id in self.user_dict.keys():
                 return self.user_dict[u_id]
             u = self.api.users.get(user_id=u_id, fields="photo_id, verified, sex, bdate, city, country, home_town, "
-                                                   "has_photo, photo_50, photo_100, photo_200_orig, photo_200, "
-                                                   "photo_400_orig, photo_max, photo_max_orig, online, domain, "
-                                                   "has_mobile, contacts, site, education, universities, "
-                                                   "schools, status, last_seen, followers_count, common_count, "
-                                                   "occupation, nickname, relatives, relation, personal, "
-                                                   "connections, exports, wall_comments, activities, interests,"
-                                                   " music, movies, tv, books, games, about, quotes, can_post, "
-                                                   "can_see_all_posts, can_see_audio, can_write_private_message"
-                                                   ", can_send_friend_request, is_favorite, is_hidden_from_feed"
-                                                   ", timezone, screen_name, maiden_name, crop_photo, is_friend"
-                                                   ", friend_status, career, military, blacklisted, "
-                                                   "blacklisted_by_me")[0]
+                                                        "has_photo, photo_50, photo_100, photo_200_orig, photo_200, "
+                                                        "photo_400_orig, photo_max, photo_max_orig, online, domain, "
+                                                        "has_mobile, contacts, site, education, universities, "
+                                                        "schools, status, last_seen, followers_count, common_count, "
+                                                        "occupation, nickname, relatives, relation, personal, "
+                                                        "connections, exports, wall_comments, activities, interests,"
+                                                        " music, movies, tv, books, games, about, quotes, can_post, "
+                                                        "can_see_all_posts, can_see_audio, can_write_private_message"
+                                                        ", can_send_friend_request, is_favorite, is_hidden_from_feed"
+                                                        ", timezone, screen_name, maiden_name, crop_photo, is_friend"
+                                                        ", friend_status, career, military, blacklisted, "
+                                                        "blacklisted_by_me")[0]
         else:
             u = self.api.users.get()[0]
         self.user_dict.update({u_id: u})
@@ -131,25 +137,10 @@ class VkWrap:
         a = self.api.messages.search(q=text, count=c, offset=o)['items']
         return a
 
-    def gen_sage(self, n):
-        o = ''
-        for i in range(n - 2):
-            i += 2
-            o += str(i) + ": "
-            k = []
-            x = 2
-            while i != 1:
-                if i % x == 0:
-                    i /= x
-                    k.append(x)
-                    x = 1
-                x += 1
-            o += str(k) + "\n"
-        return o
-
     @delay_dec
     def get_video_link(self, name_, description_):
-        return self.api.video.save(name=name_, description=description_, wallpost=0, no_comments=1, privacy_view="friends_of_friends")
+        return self.api.video.save(name=name_, description=description_, wallpost=0, no_comments=1,
+                                   privacy_view="friends_of_friends")
 
     @delay_dec
     def get_photo_link(self):
@@ -176,7 +167,7 @@ class VkWrap:
         vids = self.api.video.get()
         i = 0
         while i < len(vids):
-            if vids[i]['date'] < time.time()-s:
+            if vids[i]['date'] < time.time() - s:
                 self.delete_video(vids[i]['id'])
             else:
                 i += 1
@@ -184,16 +175,18 @@ class VkWrap:
     @delay_dec
     def get_inbox_lp(self):
         lps = self.api.messages.getLongPollServer(lp_version=2)
-        r = requests.post("https://{0}?act=a_check&key={1}&ts={2}&wait=25&mode=2&version=2".format(lps['server'], lps['key'], lps['ts'])).json()
+        r = requests.post(
+            "https://{0}?act=a_check&key={1}&ts={2}&wait=25&mode=2&version=2".format(lps['server'], lps['key'],
+                                                                                     lps['ts'])).json()
         pprint.pprint(r)
         output = []
         for u in r['updates']:
             if u[0] == 4:
-                dict_formed = {'id': u[1], 'peer_id': u[3], 'date': time.time(), 'body':u[5]}
+                dict_formed = {'id': u[1], 'peer_id': u[3], 'date': time.time(), 'body': u[5]}
                 if dict_formed['peer_id'] < 2000000000:
                     dict_formed.update({'user_id': dict_formed['peer_id']})
                 else:
-                    dict_formed.update({'chat_id': dict_formed['peer_id']-2000000000})
+                    dict_formed.update({'chat_id': dict_formed['peer_id'] - 2000000000})
                     dict_formed.update({'user_id': u[6]['from']})
                 if dict_formed['user_id'] != str(self.me):
                     output.append(dict_formed)
