@@ -32,6 +32,17 @@ class VkWrap:
         self.user_dict = {}
         self.me = self.get_user()['id']
 
+    def __init__(self, key):
+        self.api = self.key_log_in(key)
+        self.user_dict = {}
+        self.me = self.get_user()['id']
+
+    @delay_dec
+    def key_log_in(self, key):
+        return vk_requests.create_api(service_token=key,
+                                      api_version="5.73",
+                                      scope=140509183)
+
     @delay_dec
     def log_in(self, login, password):
 

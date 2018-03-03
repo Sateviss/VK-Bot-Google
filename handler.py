@@ -68,8 +68,10 @@ class Handler:
         self.me = self.bot.me
         self.t = time.time()+60
         self.last_message = -1
-        if os.path.exists("quotes.txt"):
-            self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
+        if not os.path.exists("quotes.txt"):
+            f = open("quutes.txt", "wb")
+            f.close()
+        self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
         self.reddit = praw.Reddit(client_id='wG7Qwo-mAbkSoQ',
                                   client_secret='FUrav__HGF0e08Vv6CJBfk-bCrA',
                                   user_agent='Marvin')
