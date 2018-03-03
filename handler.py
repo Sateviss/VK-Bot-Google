@@ -69,7 +69,7 @@ class Handler:
         self.t = time.time()+60
         self.last_message = -1
         if not os.path.exists("quotes.txt"):
-            f = open("quutes.txt", "wb")
+            f = open("quotes.txt", "wb")
             f.close()
         self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
         self.reddit = praw.Reddit(client_id='wG7Qwo-mAbkSoQ',
@@ -82,10 +82,12 @@ class Handler:
                           182192214: ["[id182192214|Сентябрь] горит", 40],
                           463718240: [str(gen_factorization(48)) + "АНТИСРАМ", 10000000000]}
         func_list = [self.r, self.changelog, self.stop, self.update, self.help, self.ping, self.pong, self.flipcoin,
-                     self.v, self.yt, self.quote]
+                     self.v, self.yt, self.quote, self.stats]
         self.func_dict = {k.__name__: k for k in func_list}
+        self.func_usage = {k.__name__: 0 for k in func_list}
         self.logger = logger
         self.shortener = pyshorteners.Shortener('Google', api_key=googlAPIkey)
+        self.start_time = time.time()
 
     def mess_bfs(self, m, s, f):
 
@@ -255,6 +257,21 @@ class Handler:
         m = self.bot.send_message(ID, self.greetings[mess['user_id']][0])
         self.nahui.put([m, time.time()+self.greetings[mess['user_id']][1]])
 
+    def stats(self, mess, ID):
+        o = ""
+        o += "\nВремя работы: "+time.strftime("%H:%M:%S", time.gmtime(time.time()-self.start_time))+"\n"
+        o += "\nПользователи с правами администратора:\n"
+        for a in self.admins:
+            o+="• [id{0}|{1} {2}]\n".format(a, self.bot.get_user(a)['first_name'], self.bot.get_user(a)['last_name'])
+        o += "\nОбработаные запросы:\n"
+        total = 0
+        for f in self.func_usage.keys():
+            if self.func_usage[f]:
+                o += "• {0}: {1}\n".format(f, self.func_usage[f])
+                total += self.func_usage[f]
+        o += "Всего: "+str(total)+"\n"
+        self.bot.send_message(ID, o)
+
     def handle_message(self, mess):
         if 'chat_id' in mess.keys():
             ID = mess['chat_id']
@@ -281,6 +298,7 @@ class Handler:
                                                                            user['last_name']))
         if com in self.func_dict:
             try:
+                self.func_usage[com] += 1
                 f = self.func_dict[com]
                 f(mess, ID)
             except Exception as e:
