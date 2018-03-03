@@ -197,12 +197,12 @@ class VkWrap:
         output = []
         for u in r['updates']:
             if u[0] == 4:
-                dict_formed = {'id': u[1], 'peer_id': u[3], 'date': time.time(), 'body': u[5]}
+                dict_formed = {'id': int(u[1]), 'peer_id': int(u[3]), 'date': time.time(), 'body': u[5]}
                 if dict_formed['peer_id'] < 2000000000:
                     dict_formed.update({'user_id': dict_formed['peer_id']})
                 else:
                     dict_formed.update({'chat_id': dict_formed['peer_id'] - 2000000000})
                     dict_formed.update({'user_id': u[6]['from']})
-                if dict_formed['user_id'] != str(self.me):
+                if dict_formed['user_id'] != self.me:
                     output.append(dict_formed)
         return output
