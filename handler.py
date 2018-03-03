@@ -8,6 +8,7 @@ import random
 import re
 import subprocess
 import time
+import platform
 
 import praw
 import pyshorteners
@@ -73,8 +74,8 @@ class Handler:
                                   client_secret='FUrav__HGF0e08Vv6CJBfk-bCrA',
                                   user_agent='Marvin')
 
-        self.admins = [136776175]
-        self.greetings = {165211652: ["Привет, Женя", 20],
+        self.admins = [136776175, 118781407]  # Eugene and Dmitry
+        self.greetings = {165211652: ["Привет, [id165211652|Женя]", 20],
                           445077792: ["[id445077792|Юра], иди нахуй", 20],
                           182192214: ["[id182192214|Сентябрь] горит", 40],
                           463718240: [str(gen_factorization(48)) + "АНТИСРАМ", 10000000000]}
@@ -145,11 +146,18 @@ class Handler:
     def stop(self, mess, ID):
         if mess['user_id'] in self.admins:
             self.bot.send_message(ID, "ок, ухажу")
+            if platform.system() == "Windows":
+                subprocess.run("taskkill /f /im python.exe", shell=True)
             subprocess.run("pkill python3", shell=True)
 
     def update(self, mess, ID):
         if mess['user_id'] in self.admins:
             self.bot.send_message(ID, "-принято, обновляюсь-")
+            if "Windows" == platform.system():
+                subprocess.run(
+                    args="taskkill /f /im python.exe && git pull && start python.exe main.py update {0}".format(ID),
+                    shell=True
+                )
             subprocess.run("pkill python3; git pull; nohup python3 main.py update {0} &".format(ID), shell=True)
 
     def help(self, mess, ID):
