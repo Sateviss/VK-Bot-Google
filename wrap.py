@@ -202,7 +202,7 @@ class VkWrap:
                     dict_formed.update({'user_id': dict_formed['peer_id']})
                 else:
                     dict_formed.update({'chat_id': dict_formed['peer_id'] - 2000000000})
-                    dict_formed.update({'user_id': u[6]['from']})
+                    dict_formed.update({'user_id': int(u[6]['from'])})
                 if dict_formed['user_id'] != self.me:
                     output.append(dict_formed)
         return output
