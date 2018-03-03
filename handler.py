@@ -124,12 +124,17 @@ class Handler:
             i = random.choice(nums)
             s = subs[i]
             nums.remove(i)
-            if s.url[-4:] == ".jpg":
+            try:
+                im_url = s.preview['images'][0]['source']['url']
+                print(im_url)
+            except Exception as e:
+                continue
+            if ".jpg" in im_url:
                 if s.over_18:  # and ID != mess['user_id']:
                     self.bot.send_message(ID, "NSFW: {0}, но для желающих ссылка: {1}".format(
-                        subreddit, (self.shortener.short(s.url) if len(s.url) > reddit_img_url_len else s.url)))
+                        subreddit, (self.shortener.short(im_url) if len(im_url) > reddit_img_url_len else im_url)))
                 else:
-                    f = requests.get(s.url).content
+                    f = requests.get(im_url).content
                     url = self.bot.get_photo_link()['upload_url']
                     file = open(str(hash(f)) + ".jpg", "wb")
                     file.write(f)
@@ -154,7 +159,7 @@ class Handler:
 
     def update(self, mess, ID):
         if mess['user_id'] in self.admins:
-            self.bot.send_message(ID, "-принято, обновляюсь-")
+            self.bot.send_message(ID, "принято, обновляюсь")
             if "Windows" == platform.system():
                 subprocess.run(
                     args="taskkill /f /im python.exe && git pull && start python.exe main.py update {0}".format(ID),
