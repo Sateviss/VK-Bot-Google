@@ -285,6 +285,8 @@ class Handler:
                                                          "PM",
                                                          self.bot.get_user(mess['user_id']),
                                                          mess['body']))
+        if mess['user_id'] in self.greetings.keys():
+            self.greet(mess, ID)
         if message_regex.match(mess['body']):
             com = mess['body'].split()[0][1:]
             mess['body'] = mess['body'][1:]
@@ -304,5 +306,3 @@ class Handler:
             except Exception as e:
                 self.bot.send_message(ID, "error: {0}".format(e.args))
                 raise e
-        if mess['user_id'] in self.greetings.keys():
-            self.greet(mess, ID)
