@@ -34,9 +34,9 @@ try:
     config.read("config.ini")
     app_id = config['GENERAL']['App ID']
     if config['GENERAL'].getboolean('Use token'):
-        marvin = VkWrap(config['VK TOKEN']['Access token'])
+        marvin = VkWrap(key=config['VK TOKEN']['Access token'])
     else:
-        marvin = VkWrap(config['VK LOGIN INFO']['Login'], config['VK LOGIN INFO']['Password'])
+        marvin = VkWrap(login=config['VK LOGIN INFO']['Login'], password=config['VK LOGIN INFO']['Password'])
     google_api_key = config['API KEYS'].get('Google URL shortener API key', 'kek')
     handle = Handler(marvin, safe_list, logger, google_api_key)
 except Exception as e:
@@ -58,12 +58,11 @@ def worker():
             break
         func = item[0]
         try:
+            q.task_done()
             func(item[1])
         except Exception as e:
             print(e)
             logger.exception('Got exception on worker Thread')
-        finally:
-            q.task_done()
 
 
 def deleter(hand: Handler, bot: VkWrap):

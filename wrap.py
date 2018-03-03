@@ -7,7 +7,8 @@ import time
 import requests
 import vk_requests
 
-vk_message_maxlen = 4000
+VK_MESSAGE_MAXLEN = 4000
+MAX_DELAY = 2
 
 
 def delay_dec(func):
@@ -17,7 +18,7 @@ def delay_dec(func):
             try:
                 return func(*args, **kwargs)
             except Exception as e:
-                if delay > 10:
+                if delay > MAX_DELAY:
                     raise e
                 time.sleep(delay)
                 delay *= 2
@@ -27,13 +28,13 @@ def delay_dec(func):
 
 class VkWrap:
 
-    def __init__(self, login, password):
-        self.api = self.log_in(login, password)
-        self.user_dict = {}
-        self.me = self.get_user()['id']
-
-    def __init__(self, key):
-        self.api = self.key_log_in(key)
+    def __init__(self, login=None, password=None, key=None):
+        if key and not login and not password:
+            self.api = self.key_log_in(key)
+        elif not key and login and password:
+            self.api = self.log_in(login, password)
+        else:
+            raise ValueError("No clear login method provided")
         self.user_dict = {}
         self.me = self.get_user()['id']
 
@@ -81,7 +82,7 @@ class VkWrap:
             if self.get_user(c_id)['can_write_private_message'] == 0:
                 return "err"
 
-        if len(text) < vk_message_maxlen:
+        if len(text) < VK_MESSAGE_MAXLEN:
             if int(c_id) > 100000:
                 m = self.api.messages.send(user_id=c_id, message=text)
             else:
@@ -100,7 +101,7 @@ class VkWrap:
         if int(c_id) > 100000:
             if self.get_user(c_id)['can_write_private_message'] == 0:
                 return "err"
-        if len(text) < vk_message_maxlen:
+        if len(text) < VK_MESSAGE_MAXLEN:
             if int(c_id) > 100000:
                 m = self.api.messages.send(user_id=c_id, message=text, attachment=att)
             else:
