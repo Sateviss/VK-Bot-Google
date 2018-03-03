@@ -37,6 +37,7 @@ try:
         marvin = VkWrap.with_key(config['VK TOKEN']['Access token'])
     else:
         marvin = VkWrap.with_login(config['VK LOGIN INFO']['Login'], config['VK LOGIN INFO']['Password'])
+
     google_api_key = config['API KEYS'].get('Google URL shortener API key', 'kek')
     handle = Handler(marvin, safe_list, logger, google_api_key)
 except Exception as e:
@@ -58,12 +59,11 @@ def worker():
             break
         func = item[0]
         try:
+            q.task_done()
             func(item[1])
         except Exception as ex:
             print(ex)
             logger.exception('Got exception on worker Thread')
-        finally:
-            q.task_done()
 
 
 def deleter(hand: Handler, bot: VkWrap):

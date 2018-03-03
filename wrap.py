@@ -8,12 +8,10 @@ import requests
 import vk_requests
 
 APP_ID = 6386090
-
 API_VERSION = "5.73"
-
 SCOPE = 140509183
-
-vk_message_maxlen = 4000
+VK_MESSAGE_MAXLEN = 4000
+MAX_DELAY = 2
 
 
 def delay_dec(func):
@@ -23,7 +21,7 @@ def delay_dec(func):
             try:
                 return func(*args, **kwargs)
             except Exception as e:
-                if delay > 10:
+                if delay > MAX_DELAY:
                     raise e
                 time.sleep(delay)
                 delay *= 2
@@ -87,7 +85,7 @@ class VkWrap:
             if self.get_user(c_id)['can_write_private_message'] == 0:
                 return "err"
 
-        if len(text) < vk_message_maxlen:
+        if len(text) < VK_MESSAGE_MAXLEN:
             if int(c_id) > 100000:
                 m = self.api.messages.send(user_id=c_id, message=text)
             else:
@@ -106,7 +104,7 @@ class VkWrap:
         if int(c_id) > 100000:
             if self.get_user(c_id)['can_write_private_message'] == 0:
                 return "err"
-        if len(text) < vk_message_maxlen:
+        if len(text) < VK_MESSAGE_MAXLEN:
             if int(c_id) > 100000:
                 m = self.api.messages.send(user_id=c_id, message=text, attachment=att)
             else:
