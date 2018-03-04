@@ -35,6 +35,7 @@ class VkWrap:
         self.api = api
         self.user_dict = {}
         self.me = self.get_user()['id']
+        self.ts = -1
 
     @staticmethod
     def with_key(key):
@@ -196,8 +197,9 @@ class VkWrap:
         lps = self.api.messages.getLongPollServer(lp_version=2)
         r = requests.post(
             "https://{0}?act=a_check&key={1}&ts={2}&wait=25&mode=2&version=2".format(lps['server'], lps['key'],
-                                                                                     lps['ts'])).json()
+                                                                                     self.ts)).json()
         pprint.pprint(r)
+        self.ts = r['ts']
         output = []
         for u in r['updates']:
             if u[0] == 4:
