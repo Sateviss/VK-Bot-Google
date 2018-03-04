@@ -24,7 +24,9 @@ message_regex = re.compile(r'^[\\/!]\w+')
 
 
 def isint(n: str):
-    return n.isdigit()
+    if not n.isdigit():
+        return n.replace('-', '', 1).isdigit()
+    return True
 
 
 def remove_escapes(message: str):
