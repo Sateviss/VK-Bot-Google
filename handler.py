@@ -102,6 +102,7 @@ class Handler:
         if "fwd_messages" in m.keys():
             for fwd in m['fwd_messages']:
                 s, f = self.mess_bfs(fwd, s, f)
+        m['body'] = m['body'].replace('\n', "<br>")
         pattern = re.compile(re.escape(m['body'] + "<br>© Führer ") + "\(\d+\)\n")
         filt = [i for i in filter(pattern.match, self.quote_lines)]
         if not len(filt) and m['user_id'] == 183179115 and m['body'] != "":
