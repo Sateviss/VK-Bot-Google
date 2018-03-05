@@ -116,6 +116,7 @@ class Handler:
         return s, f
 
     def r(self, mess, ID):
+        mess['body'] = mess['body'].replace("/", " ")
         subreddit = mess['body'].split()[1]
         com = mess['body'].split()[0] + ("" if len(mess['body'].split()) == 2 else " " + mess['body'].split()[2])
         if com == "r" or com == "r hot":
@@ -200,7 +201,7 @@ class Handler:
 
     def v(self, mess, ID):
         try:
-            a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'].replace("v", ''))
+            a = re.sub("print\s*\((.+)\)", "\"$1\"", mess['body'][1:])
             a.replace("&quot;", "\"")
             print(a)
             o = remove_escapes(str(simple_eval(a, functions=self.safe_dict)))
