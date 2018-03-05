@@ -1,27 +1,27 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import time
+import configparser
+import logging
 import math
-from threading import Thread
-
 import os
-
-from wrap import VkWrap
-from handler import Handler
 import queue
 import random
 import sys
-import logging
-import configparser
+import time
+from threading import Thread
 
+import google.cloud.logging
 
+from handler import Handler
+from wrap import VkWrap
 
 num_worker_threads = 4
 
-import google.cloud.logging
-client = google.cloud.logging.Client()
-client.setup_logging()
+logger = logging.Logger("VK-Bot")
+
+logging_client = google.cloud.logging.Client()
+cloud_logger = logging_client.logger(logger.name)
 
 safe_list = [math.acos, math.asin, math.atan, math.atan2, math.ceil, math.cos, math.cosh, math.degrees,
              math.exp, math.fabs, math.floor, math.fmod, math.frexp, math.hypot, math.ldexp, math.log, math.log10,
@@ -43,7 +43,7 @@ try:
         marvin = VkWrap.with_login(config['VK LOGIN INFO']['Login'], config['VK LOGIN INFO']['Password'])
 
     google_api_key = config['API KEYS'].get('Google URL shortener API key', 'kek')
-    handle = Handler(marvin, safe_list, google_api_key)
+    handle = Handler(marvin, safe_list, google_api_key, logger)
 except Exception as e:
     print("Something went wrong with config.ini\n"
           "Check if you have set it up correctly\n\n"
@@ -67,7 +67,7 @@ def worker():
             func(item[1])
         except Exception as ex:
             print(ex)
-            logging.exception('Got exception on worker Thread')
+            logger.exception('Got exception on worker Thread')
 
 
 def deleter(hand: Handler, bot: VkWrap):

@@ -64,12 +64,9 @@ def gen_factorization(number: int):
 
 class Handler:
 
-    def __init__(self, wrapper: VkWrap, safe_list, google_api_key):
+    def __init__(self, wrapper: VkWrap, safe_list, google_api_key, logger):
 
-        import google.cloud.logging
-        client = google.cloud.logging.Client()
-        client.setup_logging()
-
+        self.logger = logger
         self.bot = wrapper
         self.safe_dict = {k.__name__: k for k in safe_list}
         self.nahui = queue.Queue()
@@ -302,7 +299,7 @@ class Handler:
     def handle_message(self, mess):
         if 'chat_id' in mess.keys():
             ID = mess['chat_id']
-            logging.info("{0} ({1}) {2} {3}: {4}".format(
+            self.logger.info("{0} ({1}) {2} {3}: {4}".format(
                 time.strftime("%d.%m.%Y %H:%M:%S"),
                 self.bot.get_chat(mess['chat_id'])['title'],
                 self.bot.get_user(mess['user_id'])['first_name'],
@@ -311,7 +308,7 @@ class Handler:
             )
         else:
             ID = mess['user_id']
-            logging.info("{0} ({1}) {2} {3}: {4}".format(
+            self.logger.info("{0} ({1}) {2} {3}: {4}".format(
                 time.strftime("%d.%m.%Y %H:%M:%S"),
                 ID,
                 self.bot.get_user(mess['user_id'])['first_name'],
