@@ -16,12 +16,13 @@ import logging
 import configparser
 import google.cloud.logging
 
-client = google.cloud.logging.Client()
-client.setup_logging()
+
 
 num_worker_threads = 4
 logger = logging.Logger("VK-Bot")
 
+client = google.cloud.logging.Client()
+client.setup_logging()
 
 safe_list = [math.acos, math.asin, math.atan, math.atan2, math.ceil, math.cos, math.cosh, math.degrees,
              math.exp, math.fabs, math.floor, math.fmod, math.frexp, math.hypot, math.ldexp, math.log, math.log10,
