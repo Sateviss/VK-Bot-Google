@@ -198,7 +198,7 @@ class VkWrap:
         r = requests.post(
             "https://{0}?act=a_check&key={1}&ts={2}&wait=25&mode=2&version=2".format(lps['server'], lps['key'],
                                                                                      self.ts)).json()
-        pprint.pprint(r)
+        # pprint.pprint(r)
         self.ts = r['ts']
         output = []
         for u in r['updates']:
