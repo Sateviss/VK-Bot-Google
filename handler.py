@@ -9,6 +9,7 @@ import random
 import re
 import subprocess
 import time
+import logging
 
 import praw
 import pyshorteners
@@ -63,7 +64,7 @@ def gen_factorization(number: int):
 
 class Handler:
 
-    def __init__(self, wrapper: VkWrap, safe_list, logger, google_api_key):
+    def __init__(self, wrapper: VkWrap, safe_list, google_api_key):
         self.bot = wrapper
         self.safe_dict = {k.__name__: k for k in safe_list}
         self.nahui = queue.Queue()
@@ -88,7 +89,6 @@ class Handler:
         self.func_dict = {k.__name__: k for k in func_list}
         self.func_usage = {k.__name__: 0 for k in func_list}
         self.greet_usage = {k: 0 for k in self.greetings.keys()}
-        self.logger = logger
         self.shortener = pyshorteners.Shortener('Google', api_key=google_api_key)
         self.start_time = time.time()
 
@@ -292,13 +292,13 @@ class Handler:
     def handle_message(self, mess):
         if 'chat_id' in mess.keys():
             ID = mess['chat_id']
-            self.logger.info("{0} ({1}) {2}: {3}".format(time.strftime("%d.%m.%Y %H:%M:%S"),
+            logging.info("{0} ({1}) {2}: {3}".format(time.strftime("%d.%m.%Y %H:%M:%S"),
                                                          self.bot.get_chat(mess['chat_id']),
                                                          self.bot.get_user(mess['user_id']),
                                                          mess['body']))
         else:
             ID = mess['user_id']
-            self.logger.info("{0} ({1}) {2}: {3}".format(time.strftime("%d.%m.%Y %H:%M:%S"),
+            logging.info("{0} ({1}) {2}: {3}".format(time.strftime("%d.%m.%Y %H:%M:%S"),
                                                          "PM",
                                                          self.bot.get_user(mess['user_id']),
                                                          mess['body']))

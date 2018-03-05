@@ -19,7 +19,6 @@ import google.cloud.logging
 
 
 num_worker_threads = 4
-logger = logging.Logger("VK-Bot")
 
 client = google.cloud.logging.Client()
 client.setup_logging()
@@ -44,7 +43,7 @@ try:
         marvin = VkWrap.with_login(config['VK LOGIN INFO']['Login'], config['VK LOGIN INFO']['Password'])
 
     google_api_key = config['API KEYS'].get('Google URL shortener API key', 'kek')
-    handle = Handler(marvin, safe_list, logger, google_api_key)
+    handle = Handler(marvin, safe_list, google_api_key)
 except Exception as e:
     print("Something went wrong with config.ini\n"
           "Check if you have set it up correctly\n\n"
@@ -68,7 +67,7 @@ def worker():
             func(item[1])
         except Exception as ex:
             print(ex)
-            logger.exception('Got exception on worker Thread')
+            logging.exception('Got exception on worker Thread')
 
 
 def deleter(hand: Handler, bot: VkWrap):
