@@ -320,7 +320,8 @@ class Handler:
             self.greet(mess, ID)
             self.greet_usage[mess['user_id']] += 1
         if message_regex.match(mess['body']):
-            com = mess['body'].split()[0][1:]
+            tmp = ('$'+mess['body'][1:]).replace("/", " ")
+            com = tmp.split()[0][1:]
             mess['body'] = mess['body'][1:]
         else:
             return
