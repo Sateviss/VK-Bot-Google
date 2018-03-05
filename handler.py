@@ -64,7 +64,7 @@ def gen_factorization(number: int):
 
 class Handler:
 
-    def __init__(self, wrapper: VkWrap, safe_list, google_api_key, logger):
+    def __init__(self, wrapper: VkWrap, safe_list, google_api_key):
 
         self.bot = wrapper
         self.safe_dict = {k.__name__: k for k in safe_list}
