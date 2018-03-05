@@ -65,6 +65,11 @@ def gen_factorization(number: int):
 class Handler:
 
     def __init__(self, wrapper: VkWrap, safe_list, google_api_key):
+
+        import google.cloud.logging
+        client = google.cloud.logging.Client()
+        client.setup_logging()
+        
         self.bot = wrapper
         self.safe_dict = {k.__name__: k for k in safe_list}
         self.nahui = queue.Queue()
@@ -84,7 +89,8 @@ class Handler:
                           445077792: ["[id445077792|Юра], иди нахуй", 20],
                           182192214: ["[id182192214|Сентябрь] горит", 40],
                           463718240: [str(gen_factorization(48)) + "АНТИСРАМ", 10000000000]}
-        func_list = [self.r, self.changelog, self.stop, self.update, self.help, self.ping, self.pong, self.flipcoin,
+        func_list = [self.r, self.changelog, self.stop, self.update,
+                     self.help, self.ping, self.pong, self.flipcoin,
                      self.v, self.yt, self.quote, self.stats]
         self.func_dict = {k.__name__: k for k in func_list}
         self.func_usage = {k.__name__: 0 for k in func_list}
@@ -266,7 +272,11 @@ class Handler:
         o += "\nВремя работы: " + time.strftime("%H:%M:%S", time.gmtime(time.time() - self.start_time)) + "\n"
         o += "\nПользователи с правами администратора:\n"
         for a in self.admins:
-            o += "• [id{0}|{1} {2}]\n".format(a, self.bot.get_user(a)['first_name'], self.bot.get_user(a)['last_name'])
+            o += "• [id{0}|{1} {2}]\n".format(
+                a,
+                self.bot.get_user(a)['first_name'],
+                self.bot.get_user(a)['last_name']
+            )
         o += "\nОбработанные запросы:\n"
         total = 0
         for f in self.func_usage.keys():
@@ -292,16 +302,22 @@ class Handler:
     def handle_message(self, mess):
         if 'chat_id' in mess.keys():
             ID = mess['chat_id']
-            logging.info("{0} ({1}) {2}: {3}".format(time.strftime("%d.%m.%Y %H:%M:%S"),
-                                                         self.bot.get_chat(mess['chat_id']),
-                                                         self.bot.get_user(mess['user_id']),
-                                                         mess['body']))
+            logging.info("{0} ({1}) {2} {3}: {4}".format(
+                time.strftime("%d.%m.%Y %H:%M:%S"),
+                self.bot.get_chat(mess['chat_id'])['title'],
+                self.bot.get_user(mess['user_id'])['first_name'],
+                self.bot.get_user(mess['user_id'])['last_name'],
+                mess['body'])
+            )
         else:
             ID = mess['user_id']
-            logging.info("{0} ({1}) {2}: {3}".format(time.strftime("%d.%m.%Y %H:%M:%S"),
-                                                         "PM",
-                                                         self.bot.get_user(mess['user_id']),
-                                                         mess['body']))
+            logging.info("{0} ({1}) {2}: {3}".format(
+                time.strftime("%d.%m.%Y %H:%M:%S"),
+                ID,
+                self.bot.get_user(mess['user_id'])['first_name'],
+                self.bot.get_user(mess['user_id'])['last_name'],
+                mess['body'])
+            )
         if mess['user_id'] in self.greetings.keys():
             self.greet(mess, ID)
             self.greet_usage[mess['user_id']] += 1
@@ -313,9 +329,11 @@ class Handler:
 
         if "[id{0}|".format(self.bot.me) in mess['body']:
             user = self.bot.get_user(mess['user_id'])
-            self.bot.send_message(ID, "[id{0}|{1} {2}], отъебись блять".format(mess['user_id'],
-                                                                               user['first_name'],
-                                                                               user['last_name']))
+            self.bot.send_message(ID, "[id{0}|{1} {2}], отъебись блять".format(
+                mess['user_id'],
+                user['first_name'],
+                user['last_name'])
+            )
         if com in self.func_dict:
             try:
                 self.func_usage[com] += 1

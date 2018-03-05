@@ -14,12 +14,12 @@ import random
 import sys
 import logging
 import configparser
-import google.cloud.logging
 
 
 
 num_worker_threads = 4
 
+import google.cloud.logging
 client = google.cloud.logging.Client()
 client.setup_logging()
 
