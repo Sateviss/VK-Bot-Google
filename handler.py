@@ -69,7 +69,7 @@ class Handler:
         import google.cloud.logging
         client = google.cloud.logging.Client()
         client.setup_logging()
-        
+
         self.bot = wrapper
         self.safe_dict = {k.__name__: k for k in safe_list}
         self.nahui = queue.Queue()
@@ -311,7 +311,7 @@ class Handler:
             )
         else:
             ID = mess['user_id']
-            logging.info("{0} ({1}) {2}: {3}".format(
+            logging.info("{0} ({1}) {2} {3}: {4}".format(
                 time.strftime("%d.%m.%Y %H:%M:%S"),
                 ID,
                 self.bot.get_user(mess['user_id'])['first_name'],
