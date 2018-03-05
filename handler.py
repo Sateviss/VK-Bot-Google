@@ -84,6 +84,7 @@ class Handler:
         self.greetings = {165211652: ["Привет, [id165211652|Женя]", 20],
                           445077792: ["[id445077792|Юра], иди нахуй", 20],
                           182192214: ["[id182192214|Сентябрь] горит", 40],
+                          183179115: ["[id183179115|Илья], саси", 40],
                           463718240: [str(gen_factorization(48)) + "АНТИСРАМ", 10000000000]}
         func_list = [self.r, self.changelog, self.stop, self.update,
                      self.help, self.ping, self.pong, self.flipcoin,
