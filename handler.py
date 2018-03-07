@@ -224,8 +224,6 @@ class Handler:
                 fails += 1
             return success, fails
 
-        mess = self.bot.get_message(mess['id'])
-        mess['body'] = mess['body'][1:]
         if mess['user_id'] == '183179115':
             return
         if mess['body'] == "quote":
