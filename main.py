@@ -21,7 +21,7 @@ num_worker_threads = 4
 safe_list = [math.acos, math.asin, math.atan, math.atan2, math.ceil, math.cos, math.cosh, math.degrees,
              math.exp, math.fabs, math.floor, math.fmod, math.frexp, math.hypot, math.ldexp, math.log, math.log10,
              math.modf, math.pow, math.radians, math.sin, math.sinh, math.sqrt, math.tan, math.tanh, random.randrange,
-             int, str, algebra.gdcext, algebra.factorize]
+             int, str, algebra.gcdext, algebra.factorize]
 
 if not os.path.exists("config.ini"):
     print("config.ini does not exist, you must create one\n"

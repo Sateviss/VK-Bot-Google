@@ -88,8 +88,7 @@ class Handler:
             self.greetings = json.load(open("Data/greetings.json"))
         func_list = [self.r, self.changelog, self.stop, self.update,
                      self.help, self.ping, self.pong, self.flipcoin,
-                     self.v, self.yt, self.quote, self.stats,
-                     self.greet]
+                     self.v, self.yt, self.quote, self.stats]
         self.func_dict = {k.__name__: k for k in func_list}
         self.func_usage = {k.__name__: 0 for k in func_list}
         self.greet_usage = {k: 0 for k in self.greetings.keys()}
@@ -194,8 +193,8 @@ class Handler:
                 self.bot.send_message(ID, "[id" + mess['user_id'] + "|ПИДОР]!")
             else:
                 self.bot.send_message(ID, o + " [id{0}|©]".format(mess['user_id']))
-        except:
-            self.bot.send_message(ID, "-error-")
+        except Exception as e:
+            raise e
 
     def yt(self, mess, ID):
         link = mess['body'][-len("7-LPcVo7gC0"):]

@@ -24,14 +24,14 @@ def factorize(i):
     return [i for i in factors]
 
 
-def gdcext(a, b):
+def gcdext(a, b):
 
     def gcdext_in(a, b):
         if a > 10**50 or b > 10**50:
             raise Exception("Number too big")
         if b == 0:
             return a, 1, 0
-        d, x, y = gdcext(b, a % b)
+        d, x, y = gcdext_in(b, a % b)
         return d, y, x-math.floor(a/b)*y
 
     return [i for i in gcdext_in(a, b)]
