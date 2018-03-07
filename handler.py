@@ -246,7 +246,7 @@ class Handler:
                     arr = self.bot.msg_search("quote", 100, total)
                     for m in arr:
                         total += 1
-                        if "fwd_messages" in m.keys() and m['user_id'] != '183179115' and m['body'] == "!quote":
+                        if "fwd_messages" in m.keys() and m['user_id'] != '183179115' and m['body'][1:] == "quote":
                             total_successes += mess_bfs(m, 0, 0)[0]
                     le = len(arr)
                 self.bot.send_message(ID, "Добавлено {0} сообщений".format(total_successes))
