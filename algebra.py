@@ -21,13 +21,17 @@ def factorize(i):
         divisor += 2
     if i != 1:
         factors.append(i)
-    return factors
+    return [i for i in factors]
 
 
 def gdcext(a, b):
-    if a > 10**50 or b > 10**50:
-        raise Exception("Number too big")
-    if b == 0:
-        return a, 1, 0
-    d, x, y = gdcext(b, a % b)
-    return d, y, x-math.floor(a/b)*y
+
+    def gcdext_in(a, b):
+        if a > 10**50 or b > 10**50:
+            raise Exception("Number too big")
+        if b == 0:
+            return a, 1, 0
+        d, x, y = gdcext(b, a % b)
+        return d, y, x-math.floor(a/b)*y
+
+    return [i for i in gcdext_in(a, b)]
