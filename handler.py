@@ -18,6 +18,7 @@ from simpleeval import simple_eval
 
 import youtube
 from wrap import VkWrap
+import json
 
 reddit_img_url_len = len("https://i.redd.it/oqnxnvhpts201.jpg") + 2
 
@@ -68,52 +69,36 @@ class Handler:
 
         self.bot = wrapper
         self.safe_dict = {k.__name__: k for k in safe_list}
-        self.nahui = queue.Queue()
+        self.delete_queue = queue.Queue()
         self.me = self.bot.me
         self.t = time.time() + 60
         self.last_message = -1
-        if not os.path.exists("quotes.txt"):
-            f = open("quotes.txt", "wb")
-            f.close()
-        self.quote_lines = io.open("quotes.txt", mode="r", encoding="UTF-8").readlines()
+        if not os.path.exists("Data/quotes.txt"):
+            open("Data/quotes.txt", "wb").close()
+        self.quote_lines = io.open("Data/quotes.txt", mode="r", encoding="UTF-8").readlines()
         self.reddit = praw.Reddit(client_id='wG7Qwo-mAbkSoQ',
                                   client_secret='FUrav__HGF0e08Vv6CJBfk-bCrA',
                                   user_agent='Marvin')
 
-        self.admins = [136776175, 118781407]  # Eugene and Dmitry
-        self.greetings = {165211652: ["Привет, [id165211652|Женя]", 20],
-                          445077792: ["[id445077792|Юра], иди нахуй", 20],
-                          182192214: ["[id182192214|Сентябрь] горит", 40],
-                          183179115: ["[id183179115|Илья], саси", 40],
-                          463718240: [str(gen_factorization(48)) + "АНТИСРАМ", 10000000000]}
+        self.admins = ['136776175', '118781407']  # Eugene and Dmitry
+        if not os.path.exists("Data/greetings.json"):
+            self.greetings = {}
+            open("Data/greetings.json", "w").close()
+        else:
+            self.greetings = json.load(open("Data/greetings.json"))
         func_list = [self.r, self.changelog, self.stop, self.update,
                      self.help, self.ping, self.pong, self.flipcoin,
-                     self.v, self.yt, self.quote, self.stats]
+                     self.v, self.yt, self.quote, self.stats,
+                     self.greet]
         self.func_dict = {k.__name__: k for k in func_list}
         self.func_usage = {k.__name__: 0 for k in func_list}
         self.greet_usage = {k: 0 for k in self.greetings.keys()}
         self.shortener = pyshorteners.Shortener('Google', api_key=google_api_key)
         self.start_time = time.time()
 
-    def mess_bfs(self, m, s, f):
-
-        def add_quote(quote):
-            self.quote_lines.append(quote)
-            with io.open("quotes.txt", mode="a", encoding="UTF-8") as quotes_file:
-                quotes_file.write(quote)
-
-        if "fwd_messages" in m.keys():
-            for fwd in m['fwd_messages']:
-                s, f = self.mess_bfs(fwd, s, f)
-        m['body'] = m['body'].replace('\n', "<br>")
-        pattern = re.compile(re.escape(m['body'] + "<br>© Führer ") + "\(\d+\)\n")
-        filt = [i for i in filter(pattern.match, self.quote_lines)]
-        if not len(filt) and m['user_id'] == 183179115 and m['body'] != "":
-            add_quote(m['body'] + "<br>© Führer ({0})\n".format(len(self.quote_lines)))
-            s += 1
-        else:
-            f += 1
-        return s, f
+    def greeting(self, mess, ID):
+        message = self.bot.send_message(ID, self.greetings[mess['user_id']]['greeting'])
+        self.delete_queue.put((message, time.time() + self.greetings[mess['user_id']]['timeout']))
 
     def r(self, mess, ID):
         mess['body'] = mess['body'].replace("/", " ")
@@ -206,7 +191,7 @@ class Handler:
             print(a)
             o = remove_escapes(str(simple_eval(a, functions=self.safe_dict)))
             if len(o.split()) == 0 or len(o) == 0:
-                self.bot.send_message(ID, "[id" + str(mess['user_id']) + "|ПИДОР]!")
+                self.bot.send_message(ID, "[id" + mess['user_id'] + "|ПИДОР]!")
             else:
                 self.bot.send_message(ID, o + " [id{0}|©]".format(mess['user_id']))
         except:
@@ -218,33 +203,55 @@ class Handler:
         self.bot.send_message(ID, youtube.down_and_send(link, ID, self.bot))
 
     def quote(self, mess, ID):
+
+        def mess_bfs(message, success, fails):
+
+            def add_quote(quote):
+                self.quote_lines.append(quote)
+                with io.open("Data/quotes.txt", mode="a", encoding="UTF-8") as quotes_file:
+                    quotes_file.write(quote)
+
+            if "fwd_messages" in message.keys():
+                for fwd in message['fwd_messages']:
+                    success, fails = mess_bfs(fwd, success, fails)
+            message['body'] = message['body'].replace('\n', "<br>")
+            pattern = re.compile(re.escape(message['body'] + "<br>© Führer ") + "\(\d+\)\n")
+            filt = [i for i in filter(pattern.match, self.quote_lines)]
+            if not len(filt) and message['user_id'] == '183179115' and message['body'] != "":
+                add_quote(message['body'] + "<br>© Führer ({0})\n".format(len(self.quote_lines)))
+                success += 1
+            else:
+                fails += 1
+            return success, fails
+
         mess = self.bot.get_message(mess['id'])
         mess['body'] = mess['body'][1:]
-        if mess['user_id'] == 183179115:
+        if mess['user_id'] == '183179115':
             return
         if mess['body'] == "quote":
             if "fwd_messages" in mess.keys():
-                s, f = self.mess_bfs(mess, 0, 0)
-                self.bot.send_message(ID, "Добавлено {0} сообщений, не добавлено {1} сообщений".format(s, f - 1))
+                total_successes, f = mess_bfs(mess, 0, 0)
+                self.bot.send_message(
+                    ID,
+                    "Добавлено {0} сообщений, не добавлено {1} сообщений".format(total_successes, f - 1))
             else:
                 if len(self.quote_lines):
                     self.bot.send_message(ID, random.choice(self.quote_lines))
                 else:
                     self.bot.send_message(ID, "Цитат пока что нет")
         if len(mess['body'].split()) > 1:  # Циатник
-            if mess['body'] == "quote all" and mess['user_id'] == 136776175:
+            if mess['body'] == "quote all" and mess['user_id'] in self.admins:
                 le = 100
                 total = 0
-                s = 0
+                total_successes = 0
                 while le == 100:
                     arr = self.bot.msg_search("quote", 100, total)
                     for m in arr:
                         total += 1
-                        if "fwd_messages" in m.keys() and m['user_id'] != 183179115 and m['body'] == "!quote":
-                            s1, f1 = self.mess_bfs(m, 0, 0)
-                            s += s1
+                        if "fwd_messages" in m.keys() and m['user_id'] != '183179115' and m['body'] == "!quote":
+                            total_successes += mess_bfs(m, 0, 0)[0]
                     le = len(arr)
-                self.bot.send_message(ID, "Добавлено {0} сообщений".format(s))
+                self.bot.send_message(ID, "Добавлено {0} сообщений".format(total_successes))
             elif isint(mess['body'].split()[1]):
                 n = int(mess['body'].split()[1])
                 if abs(n) < len(self.quote_lines):
@@ -256,14 +263,10 @@ class Handler:
                 self.bot.send_message(ID, self.quote_lines[-1])
             elif mess['body'] == "quote get":
                 url = self.bot.doc_get_url()
-                r = requests.post(url=url, files={'file': open("quotes.txt", 'rb')}).json()
+                r = requests.post(url=url, files={'file': open("Data/quotes.txt", 'rb')}).json()
                 file = self.bot.doc_save(r['file'])[0]
                 string = "doc{0}_{1}".format(str(file['owner_id']), str(file['id']))
                 self.bot.send_attachment(ID, "лови", string)
-
-    def greet(self, mess, ID):
-        m = self.bot.send_message(ID, self.greetings[mess['user_id']][0])
-        self.nahui.put([m, time.time() + self.greetings[mess['user_id']][1]])
 
     def stats(self, mess, ID):
         o = ""
@@ -297,6 +300,37 @@ class Handler:
 
         self.bot.send_message(ID, o)
 
+    def greet(self, mess, ID):
+        if mess['body'].split()[1] == "me":
+            if mess['user_id'] in self.greetings.keys():
+                if self.greetings[mess['user_id']]['admined'] and mess['user_id'] not in self.admins:
+                    raise Exception("You already have a greeting created by an admin")
+            self.greetings.update({ mess['user_id']: {'greeting': mess['body'][len("greet me "):],
+                                                      'timeout': 10,
+                                                      'admined': mess['user_id'] in self.admins}})
+            json.dump(self.greetings, open("Data/greetings.json", "w"), indent=True, ensure_ascii=False)
+            self.bot.send_message(ID, 'Добавлено приветствие "{0}"'.format(self.greetings[mess['user_id']]['greeting']))
+            self.greet_usage.update({mess['user_id']: 0})
+            return
+        if mess['body'].split()[1] == 'delete':
+            if len(mess['body'].split()) == 2:
+                if self.greetings[mess['user_id']]['admined'] and mess['user_id'] not in self.admins:
+                    raise Exception("You already have a greeting created by an admin")
+                self.greetings.pop(mess['user_id'])
+                self.bot.send_message(ID, "Приветствие удалено")
+            if len(mess['body'].split()) == 3 and mess['user_id'] in self.admins:
+                self.greetings.pop(mess['body'].split()[2])
+                self.bot.send_message(ID, "Приветствие удалено")
+            return
+        if isint(mess['body'].split()[1]) and mess['user_id'] in self.admins:
+            self.greetings.update({mess['body'].split()[1]: {'greeting': mess['body'][len("greet "+mess['body'].split()[1])+1:],
+                                                     'timeout': 10,
+                                                     'admined': mess['user_id'] in self.admins}})
+            json.dump(self.greetings, open("Data/greetings.json", "w"), indent=True, ensure_ascii=False)
+            self.bot.send_message(ID, 'Добавлено приветствие "{0}"'.format(self.greetings[mess['body'].split()[1]]['greeting']))
+            self.greet_usage.update({mess['body'].split()[1]: 0})
+            return
+
     def handle_message(self, mess):
         if 'chat_id' in mess.keys():
             ID = mess['chat_id']
@@ -317,7 +351,7 @@ class Handler:
                 mess['body'])
             )
         if mess['user_id'] in self.greetings.keys():
-            self.greet(mess, ID)
+            self.greeting(mess, ID)
             self.greet_usage[mess['user_id']] += 1
         if message_regex.match(mess['body']):
             tmp = ('$'+mess['body'][1:]).replace("/", " ")

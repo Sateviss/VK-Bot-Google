@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import pprint
 import time
 
 import requests
@@ -203,11 +202,11 @@ class VkWrap:
         output = []
         for u in r['updates']:
             if u[0] == 4 and not u[2] & 2:
-                dict_formed = {'id': int(u[1]), 'peer_id': int(u[3]), 'date': time.time(), 'body': u[5]}
+                dict_formed = {'id': u[1], 'peer_id': int(u[3]), 'date': time.time(), 'body': u[5]}
                 if dict_formed['peer_id'] < 2000000000:
-                    dict_formed.update({'user_id': dict_formed['peer_id']})
+                    dict_formed.update({'user_id': str(dict_formed['peer_id'])})
                 else:
-                    dict_formed.update({'chat_id': dict_formed['peer_id'] - 2000000000})
-                    dict_formed.update({'user_id': int(u[6]['from'])})
+                    dict_formed.update({'chat_id': str(dict_formed['peer_id'] - 2000000000)})
+                    dict_formed.update({'user_id': u[6]['from']})
                 output.append(dict_formed)
         return output

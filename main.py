@@ -10,6 +10,7 @@ import sys
 import time
 from threading import Thread
 import logging
+import algebra
 
 from handler import Handler
 from wrap import VkWrap
@@ -20,7 +21,7 @@ num_worker_threads = 4
 safe_list = [math.acos, math.asin, math.atan, math.atan2, math.ceil, math.cos, math.cosh, math.degrees,
              math.exp, math.fabs, math.floor, math.fmod, math.frexp, math.hypot, math.ldexp, math.log, math.log10,
              math.modf, math.pow, math.radians, math.sin, math.sinh, math.sqrt, math.tan, math.tanh, random.randrange,
-             int, str]
+             int, str, algebra.gdcext, algebra.factorize]
 
 if not os.path.exists("config.ini"):
     print("config.ini does not exist, you must create one\n"
@@ -42,6 +43,7 @@ except Exception as e:
     print("Something went wrong with config.ini\n"
           "Check if you have set it up correctly\n\n"
           "Here's the error: "+str(e.args))
+    logging.exception(e)
     sys.exit(1)
 
 # marvin.send_message(ID, "Бот Запущен")
@@ -67,11 +69,11 @@ def worker():
 def deleter(hand: Handler, bot: VkWrap):
     while True:
         time.sleep(0.1)
-        item = hand.nahui.get()
-        if item[1] < time.time():
-            bot.delete_message(item[0])
+        message, timeout = hand.delete_queue.get()
+        if timeout < time.time():
+            bot.delete_message(message)
         else:
-            hand.nahui.put(item)
+            hand.delete_queue.put((message, timeout))
 
 
 t = Thread(target=deleter, args=(handle, marvin))
