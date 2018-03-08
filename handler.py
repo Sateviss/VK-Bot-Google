@@ -88,7 +88,7 @@ class Handler:
             self.greetings = json.load(open("Data/greetings.json"))
         func_list = [self.r, self.changelog, self.stop, self.update,
                      self.help, self.ping, self.pong, self.flipcoin,
-                     self.v, self.yt, self.quote, self.stats]
+                     self.v, self.yt, self.quote, self.stats, self.greet]
         self.func_dict = {k.__name__: k for k in func_list}
         self.func_usage = {k.__name__: 0 for k in func_list}
         self.greet_usage = {k: 0 for k in self.greetings.keys()}
@@ -216,13 +216,16 @@ class Handler:
             message['body'] = message['body'].replace('\n', "<br>")
             pattern = re.compile(re.escape(message['body'] + "<br>© Führer ") + "\(\d+\)\n")
             filt = [i for i in filter(pattern.match, self.quote_lines)]
-            if not len(filt) and message['user_id'] == '183179115' and message['body'] != "":
+            if not len(filt) and str(message['user_id']) == '183179115' and message['body'] != "":
                 add_quote(message['body'] + "<br>© Führer ({0})\n".format(len(self.quote_lines)))
                 success += 1
             else:
                 fails += 1
             return success, fails
-
+        mess = self.bot.get_message(mess['id'])
+        mess['body'] = mess['body'][1:]
+        mess['user_id'] = str(mess['user_id'])
+        mess['id'] = str(mess['id'])
         if mess['user_id'] == '183179115':
             return
         if mess['body'] == "quote":
@@ -298,35 +301,36 @@ class Handler:
         self.bot.send_message(ID, o)
 
     def greet(self, mess, ID):
-        if mess['body'].split()[1] == "me":
-            if mess['user_id'] in self.greetings.keys():
-                if self.greetings[mess['user_id']]['admined'] and mess['user_id'] not in self.admins:
-                    raise Exception("You already have a greeting created by an admin")
-            self.greetings.update({ mess['user_id']: {'greeting': mess['body'][len("greet me "):],
-                                                      'timeout': 10,
-                                                      'admined': mess['user_id'] in self.admins}})
-            json.dump(self.greetings, open("Data/greetings.json", "w"), indent=True, ensure_ascii=False)
-            self.bot.send_message(ID, 'Добавлено приветствие "{0}"'.format(self.greetings[mess['user_id']]['greeting']))
-            self.greet_usage.update({mess['user_id']: 0})
-            return
-        if mess['body'].split()[1] == 'delete':
-            if len(mess['body'].split()) == 2:
-                if self.greetings[mess['user_id']]['admined'] and mess['user_id'] not in self.admins:
-                    raise Exception("You already have a greeting created by an admin")
-                self.greetings.pop(mess['user_id'])
-                self.bot.send_message(ID, "Приветствие удалено")
-            if len(mess['body'].split()) == 3 and mess['user_id'] in self.admins:
-                self.greetings.pop(mess['body'].split()[2])
-                self.bot.send_message(ID, "Приветствие удалено")
-            return
-        if isint(mess['body'].split()[1]) and mess['user_id'] in self.admins:
-            self.greetings.update({mess['body'].split()[1]: {'greeting': mess['body'][len("greet "+mess['body'].split()[1])+1:],
-                                                     'timeout': 10,
-                                                     'admined': mess['user_id'] in self.admins}})
-            json.dump(self.greetings, open("Data/greetings.json", "w"), indent=True, ensure_ascii=False)
-            self.bot.send_message(ID, 'Добавлено приветствие "{0}"'.format(self.greetings[mess['body'].split()[1]]['greeting']))
-            self.greet_usage.update({mess['body'].split()[1]: 0})
-            return
+        if mess['user_id'] in self.admins:
+            if mess['body'].split()[1] == "me":
+                if mess['user_id'] in self.greetings.keys():
+                    if self.greetings[mess['user_id']]['admined'] and mess['user_id'] not in self.admins:
+                        raise Exception("You already have a greeting created by an admin")
+                self.greetings.update({ mess['user_id']: {'greeting': mess['body'][len("greet me "):],
+                                                          'timeout': 10,
+                                                          'admined': mess['user_id'] in self.admins}})
+                json.dump(self.greetings, open("Data/greetings.json", "w"), indent=True, ensure_ascii=False)
+                self.bot.send_message(ID, 'Добавлено приветствие "{0}"'.format(self.greetings[mess['user_id']]['greeting']))
+                self.greet_usage.update({mess['user_id']: 0})
+                return
+            if mess['body'].split()[1] == 'delete':
+                if len(mess['body'].split()) == 2:
+                    if self.greetings[mess['user_id']]['admined'] and mess['user_id'] not in self.admins:
+                        raise Exception("You already have a greeting created by an admin")
+                    self.greetings.pop(mess['user_id'])
+                    self.bot.send_message(ID, "Приветствие удалено")
+                if len(mess['body'].split()) == 3 and mess['user_id'] in self.admins:
+                    self.greetings.pop(mess['body'].split()[2])
+                    self.bot.send_message(ID, "Приветствие удалено")
+                return
+            if isint(mess['body'].split()[1]) and mess['user_id'] in self.admins:
+                self.greetings.update({mess['body'].split()[1]: {'greeting': mess['body'][len("greet "+mess['body'].split()[1])+1:],
+                                                         'timeout': 10,
+                                                         'admined': mess['user_id'] in self.admins}})
+                json.dump(self.greetings, open("Data/greetings.json", "w"), indent=True, ensure_ascii=False)
+                self.bot.send_message(ID, 'Добавлено приветствие "{0}"'.format(self.greetings[mess['body'].split()[1]]['greeting']))
+                self.greet_usage.update({mess['body'].split()[1]: 0})
+                return
 
     def handle_message(self, mess):
         if 'chat_id' in mess.keys():
