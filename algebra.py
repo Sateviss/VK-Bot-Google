@@ -34,4 +34,5 @@ def gcdext(a, b):
         d, x, y = gcdext_in(b, a % b)
         return d, y, x-math.floor(a/b)*y
     d, x, y = gcdext_in(a, b)
-    return f"{a}*{x}+{b}*{y}={d}"
+    
+    return "{}*{}+{}*{}={}".format(a, x, b, y, d)
