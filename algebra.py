@@ -6,7 +6,7 @@ import math
 
 
 def factorize(i):
-    if i > 10**30:
+    if i > 10**20:
         raise Exception("Number too big")
     factors = collections.deque()
     divisor = 2
@@ -33,5 +33,5 @@ def gcdext(a, b):
             return a, 1, 0
         d, x, y = gcdext_in(b, a % b)
         return d, y, x-math.floor(a/b)*y
-
-    return [i for i in gcdext_in(a, b)]
+    d, x, y = gcdext_in(a, b)
+    return f"{a}*{x}+{b}*{y}={d}"
